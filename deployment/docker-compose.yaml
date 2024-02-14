@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  identity-server:
+    container_name: identity-server
+    build:
+      context: ../.
+      dockerfile: src/Identity.Server/Dockerfile
+    ports:
+      - "9090:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_URLS=http://+:80
+      - DbParams:Host=IdentityDb
+      - DbParams:Port=${DB_PORT}
+      - DbParams:User=${DB_USER}
+      - DbParams:Password=${DB_PASSWORD}
+      - DbParams:Database=${DB_NAME}
+    depends_on:
+      - identity-database
+    networks:
+      - identity-network
+
+  identity-database:
+    container_name: identity-database
+    image: "postgres:latest"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - D:\databases\identity-db-data:/var/lib/postgresql/data
+    networks:
+      - identity-network
+
+networks:
+  identity-network:
+    driver: bridge
