@@ -9,13 +9,14 @@ services:
     ports:
       - "9090:80"
     environment:
-      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - ASPNETCORE_URLS=http://+:80
-      - DbParams:Host=IdentityDb
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - DbParams:Host=${DB_HOST}
       - DbParams:Port=${DB_PORT}
       - DbParams:User=${DB_USER}
       - DbParams:Password=${DB_PASSWORD}
       - DbParams:Database=${DB_NAME}
+      - Jwt:Key=${SECRET_KEY}
     depends_on:
       - identity-database
     networks:
@@ -34,6 +35,22 @@ services:
       - D:\databases\identity-db-data:/var/lib/postgresql/data
     networks:
       - identity-network
+
+#  identity-database-migrator:
+#    container_name: identity-database-migrator
+#    build:
+#      context: ../.
+#      dockerfile: src/Identity.Migrator/Dockerfile
+#    environment:
+#      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+#      - DB_HOST=${DB_HOST}
+#      - DB_PORT=${DB_PORT}
+#      - DB_USER=${DB_USER}
+#      - DB_PASSWORD=${DB_PASSWORD}
+#      - DB_NAME=${DB_NAME}
+#    tty: true
+#    networks:
+#      - identity-network
 
 networks:
   identity-network:
