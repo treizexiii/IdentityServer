@@ -1,6 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using Identity.Core.Entities;
 using Identity.Migrator;
 using Identity.Persistence;
 using Identity.Persistence.Database;
@@ -11,9 +10,17 @@ using Microsoft.Extensions.Hosting;
 
 Console.WriteLine("Hello, Migrator!");
 
+var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+Console.WriteLine("Environment: " + env);
+
 DotEnv.Load(".env");
 var host = Host.CreateDefaultBuilder(args)
-    .ConfigureHostConfiguration(builder => { builder.AddEnvironmentVariables(); })
+    .ConfigureHostConfiguration(builder =>
+    {
+        builder.AddJsonFile("appsettings.json", optional: true);
+        builder.AddJsonFile($"appsettings.{env}.json", optional: true);
+        builder.AddEnvironmentVariables();
+    })
     .ConfigureServices((hostContext, services) =>
     {
         services.AddPersistence(IdentityPersistanceProvider.BuildConnectionString(

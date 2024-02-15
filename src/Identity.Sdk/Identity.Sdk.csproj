@@ -7,18 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Reference Include="Microsoft.AspNetCore.Authentication.BearerToken">
-        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.1\Microsoft.AspNetCore.Authentication.BearerToken.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.AspNetCore.Http.Results">
-        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.1\Microsoft.AspNetCore.Http.Results.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.AspNetCore.Identity">
-        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.1\Microsoft.AspNetCore.Identity.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Identity.Wrappers\Identity.Wrappers.csproj" />
     </ItemGroup>
 

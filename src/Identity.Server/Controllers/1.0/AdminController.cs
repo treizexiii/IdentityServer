@@ -3,7 +3,6 @@ using Identity.Services.Admin;
 using Identity.Services.Auth;
 using Identity.Wrappers.Dto;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Tools.TransactionsManager;
 
@@ -12,7 +11,7 @@ namespace Identity.Server.Controllers._1._0;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class AdminControllers(
+public class AdminController(
     ILogger<IdentityControllerBase> logger,
     ITransactionManager transaction,
     IHttpContextAccessor contextAccessor,

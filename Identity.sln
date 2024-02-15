@@ -31,6 +31,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Exceptions", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Migrator", "src\Identity.Migrator\Identity.Migrator.csproj", "{7C920E19-2D4B-46D3-A98A-0519DCB06B8F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docmentation", "docmentation", "{8047C15C-8144-4B33-BC2E-9CE1351BEADC}"
+	ProjectSection(SolutionItems) = preProject
+		documentation\database.md = documentation\database.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

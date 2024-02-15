@@ -72,7 +72,7 @@ internal class AuthService(
 
     public async Task<JwtToken> LoginAsync(LoginDto loginDto)
     {
-        var user = await userRepository.GetUserAsync(loginDto.Email);
+        var user = await userRepository.GetUserAsync(loginDto.Username);
         if (user == null)
         {
             throw new Exception("Credentials error");

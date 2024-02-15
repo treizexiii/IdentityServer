@@ -1,10 +1,8 @@
 using Identity.Core;
-using Identity.Core.Entities;
 using Identity.Persistence;
 using Identity.Persistence.Database;
 using Identity.Server.Tools;
 using Identity.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Tools.TransactionsManager;
 
@@ -49,7 +47,13 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddPersistence(builder.Configuration.GetConnectionString("DefaultConnection"));
+builder.Services.AddPersistence(IdentityPersistanceProvider.BuildConnectionString(
+    builder.Configuration["DbParams:Host"],
+    builder.Configuration["DbParams:Port"],
+    builder.Configuration["DbParams:Database"],
+    builder.Configuration["DbParams:User"],
+    builder.Configuration["DbParams:Password"]
+));
 builder.Services.AddTransactionManager<IdentityDb>();
 
 builder.Services.AddIdentityDomain();
@@ -80,5 +84,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseHttpsRedirection();
+
+Console.WriteLine(app.Configuration["Jwt:Key"]);
 
 app.Run();

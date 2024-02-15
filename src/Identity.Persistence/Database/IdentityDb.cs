@@ -19,7 +19,6 @@ public class IdentityDb : DbContext, IDbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.HasDefaultSchema("identity");
         builder.Entity<User>(b =>
         {
             b.HasIndex(u => u.UserName).IsUnique();

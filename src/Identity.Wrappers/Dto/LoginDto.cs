@@ -1,7 +1,7 @@
 
 namespace Identity.Wrappers.Dto;
 
-public record LoginDto(string Email, string Password, string? AppKey);
+public record LoginDto(string Username, string Password, string? AppKey);
 
 public record RegisterDto(string Email, string Password, string AppKey);
 
