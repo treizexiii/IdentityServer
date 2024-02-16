@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using Identity.Core.Entities;
+using Identity.Core.Tools;
+using Identity.Services.Auth;
 using Identity.Wrappers.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Tools.TransactionsManager;
@@ -62,6 +64,20 @@ public abstract class IdentityControllerBase(
         };
 
         return base.Ok(response);
+    }
+
+    protected IActionResult BadRequest(ServiceResult<ProblemsMessage> result, Guid userId)
+    {
+        var response = new ApiResponse<ProblemsMessage>
+        {
+            Version = "1.0",
+            Code = 400,
+            Success = false,
+            Message = "Bad request",
+            Data = result.Data
+        };
+
+        return base.BadRequest(response);
     }
 
     protected IActionResult Error(Exception e)

@@ -1,3 +1,4 @@
+using Identity.Core.Configuration;
 using Identity.Services.Admin;
 using Identity.Services.Auth;
 using Microsoft.Extensions.DependencyInjection;

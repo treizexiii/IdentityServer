@@ -141,6 +141,55 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
         return currentInfo;
     }
 
+    public async Task<TransactionInfo> RollbackTransactionAsync(Guid userId, string message)
+    {
+        if (_transaction is null)
+        {
+            throw new ArgumentException($"Transaction for user {userId} not found or not started");
+        }
+
+        TransactionInfo currentInfo;
+        try
+        {
+            foreach (var transaction in _transaction.Context)
+            {
+                if (transaction.Value.TransactionId != context.CurrentTransaction?.TransactionId)
+                {
+                    throw new ArgumentException($"Transaction for context {transaction.Key} not current");
+                }
+
+                context.ChangeTracker.Entries().ToList().ForEach(x => x.Reload());
+                await context.CurrentTransaction.RollbackAsync();
+                logger.LogInformation("Transaction rollback for context {ContextName}, {TransactionId}",
+                    transaction.Key, transaction.Value.TransactionId);
+            }
+
+            _transaction.SetMessage(message);
+            _transaction.SetStatus(TransactionStatusEnum.RolledBack);
+            currentInfo = _transaction;
+        }
+        catch (Exception exception)
+        {
+            logger.LogError("Error while rollback transaction: {Message}", exception.Message);
+            _transaction.SetMessage(exception.Message);
+            _transaction.SetStatus(TransactionStatusEnum.Failed);
+            currentInfo = _transaction;
+        }
+        finally
+        {
+            foreach (var transaction in _transaction.Context)
+            {
+                await transaction.Value.DisposeAsync();
+            }
+
+            _transaction = null;
+
+            logger.LogInformation("Transactions end for user {UserId}", userId);
+        }
+
+        return currentInfo;
+    }
+
     #region NotImplemented
 
     public Task BeginTransactionAsync(Guid userId, params Type[] contextName)

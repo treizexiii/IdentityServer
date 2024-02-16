@@ -34,7 +34,7 @@ public class AdminController(
             await authService.RegisterAsync(registerAppDto.ToRegisterRequest(appKey), RolesList.Admin);
 
             await Transaction.CommitTransactionAsync(guid);
-            return Ok("Provider registered");
+            return Ok("App registered");
         }
         catch (Exception e)
         {

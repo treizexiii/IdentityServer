@@ -9,6 +9,7 @@ public static class DependencyInjection
         services.AddHttpClient<IIdentityClient, IdentityHttpClient>(client =>
         {
             client.BaseAddress = new Uri(url);
+            client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
         });
 
         return services;

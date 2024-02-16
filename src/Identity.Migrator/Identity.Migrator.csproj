@@ -6,6 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <Version>0.9.0</Version>
+        <ProductName>Identity.Migrator</ProductName>
     </PropertyGroup>
 
     <ItemGroup>

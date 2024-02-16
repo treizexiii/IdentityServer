@@ -12,3 +12,4 @@ public record RegisterAppDto(string Email, string Password, string AppName)
         return new RegisterDto(Email, Password, appKey);
     }
 }
+

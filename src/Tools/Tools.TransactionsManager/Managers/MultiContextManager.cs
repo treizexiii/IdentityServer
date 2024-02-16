@@ -114,6 +114,12 @@ public class MultiContextTransactionManager(
         return Rollback(userId, e, currentContext);
     }
 
+    public Task<TransactionInfo> RollbackTransactionAsync(Guid userId, string message)
+    {
+        var currentContext = contexts.ToList();
+        return Rollback(userId, message, currentContext);
+    }
+
     public async Task<TransactionInfo> RollbackTransactionAsync(Guid userId, Exception e, params Type[] contextName)
     {
         var currentContext = contextName.Select(GetContext).ToList();
@@ -151,6 +157,61 @@ public class MultiContextTransactionManager(
             }
 
             transactionInfo.SetMessage(e.Message);
+            transactionInfo.SetStatus(TransactionStatusEnum.RolledBack);
+        }
+        catch (Exception exception)
+        {
+            logger.LogError("Error while rollback transaction: {Message}", exception.Message);
+            transactionInfo.SetMessage(exception.Message);
+            transactionInfo.SetStatus(TransactionStatusEnum.Failed);
+            throw;
+        }
+        finally
+        {
+            foreach (var transaction in transactionInfo.Context)
+            {
+                transaction.Value.Dispose();
+            }
+
+            _transactionList.Remove(transactionInfo);
+
+            logger.LogInformation("Transactions end for user {UserId}", userId);
+        }
+
+        return transactionInfo;
+    }
+
+    private async Task<TransactionInfo> Rollback(Guid userId, string message, IReadOnlyCollection<IDbContext> currentContext)
+    {
+        var transactionInfo = _transactionList.FirstOrDefault(x => x.UserId == userId);
+        if (transactionInfo is null)
+        {
+            throw new ArgumentException($"Transaction for user {userId} not found");
+        }
+
+        try
+        {
+            foreach (var transaction in transactionInfo.Context)
+            {
+                var db = currentContext.FirstOrDefault(x => x.GetType().Name == transaction.Key);
+                if (db is null)
+                {
+                    throw new ArgumentException($"Context {transaction.Key} not found");
+                }
+
+                var currentTransaction = db.CurrentTransaction;
+                if (currentTransaction is null || currentTransaction.TransactionId != transaction.Value.TransactionId)
+                {
+                    throw new ArgumentException($"Transaction for context {transaction.Key} not current");
+                }
+
+                db.ChangeTracker.Entries().ToList().ForEach(x => x.Reload());
+                await currentTransaction.RollbackAsync();
+                logger.LogInformation("Transaction rollback for context {ContextName}, {TransactionId}",
+                    transaction.Key, transaction.Value.TransactionId);
+            }
+
+            transactionInfo.SetMessage(message);
             transactionInfo.SetStatus(TransactionStatusEnum.RolledBack);
         }
         catch (Exception exception)

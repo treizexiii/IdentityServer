@@ -1,0 +1,1 @@
+namespace Identity.Server.Tools;
