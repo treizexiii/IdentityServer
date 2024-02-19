@@ -14,9 +14,10 @@ if ($help)
     exit 0
 }
 
-if (Test-Path 'publish/.env')
+if (Test-Path 'publish-scripts/.env')
 {
-    $envFile = Get-Content -Path 'publish/.env'
+    $envFile = Get-Content -Path 'publish-scripts/.env'
+    echo $envFile
     foreach ($line in $envFile)
     {
         $parts = $line -split '=', 2

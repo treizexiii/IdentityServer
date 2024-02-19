@@ -38,11 +38,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docmentation", "docmentatio
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "publish-scripts", "publish-scripts", "{7EFC43DC-D276-4589-9CB8-C18B65F98FA2}"
 	ProjectSection(SolutionItems) = preProject
-		publish-script\.env = publish-script\.env
-		publish-script\build.ps1 = publish-script\build.ps1
-		publish-script\control-version.ps1 = publish-script\control-version.ps1
-		publish-script\publish-sdk.ps1 = publish-script\publish-sdk.ps1
-		publish-script\publish.ps1 = publish-script\publish.ps1
+		publish-script\.env = publish-scripts\.env
+		publish-script\build.ps1 = publish-scripts\build.ps1
+		publish-script\control-version.ps1 = publish-scripts\control-version.ps1
+		publish-script\publish-sdk.ps1 = publish-scripts\publish-sdk.ps1
+		publish-script\publish.ps1 = publish-scripts\publish.ps1
 	EndProjectSection
 EndProject
 Global

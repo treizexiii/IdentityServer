@@ -21,9 +21,9 @@ if ($null -eq $tag)
     $tag = "dev"
 }
 
-if (Test-Path 'publish/.env')
+if (Test-Path 'publish-scripts/.env')
 {
-    $envFile = Get-Content -Path 'publish/.env'
+    $envFile = Get-Content -Path 'publish-scripts/.env'
     foreach ($line in $envFile)
     {
         Write-Output $line
@@ -42,7 +42,7 @@ if ($null -eq $registry)
 }
 
 $image_to_push = "identity.$app" + ":$tag"
-$repository = $registry + $image_to_push
+$repository = "$registry/" + $image_to_push
 
 Write-Host "Publishing to $repository" -ForegroundColor Green
 
@@ -57,8 +57,5 @@ if ($LASTEXITCODE -ne 0)
 }
 
 Write-Host "Publish completed" -ForegroundColor Green
-
-# delete env variables
-Remove-Item Env:\REGISTRY
 
 exit 0
