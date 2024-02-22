@@ -9,6 +9,7 @@ public static class IdentityServicesProvider
 {
     public static IServiceCollection AddIdentityServices(this IServiceCollection services)
     {
+        services.AddScoped<IJwtOptions, JwtOptions>();
         services.AddScoped<IAuthOptions, AuthOptions>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAdminService, AdminService>();

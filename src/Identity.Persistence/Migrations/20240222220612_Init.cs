@@ -194,16 +194,17 @@ namespace Identity.Persistence.Migrations
                 name: "usertokens",
                 columns: table => new
                 {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     userid = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
-                    loginprovider = table.Column<string>(type: "text", nullable: false),
                     value = table.Column<string>(type: "text", nullable: false),
+                    loginprovider = table.Column<string>(type: "text", nullable: false),
                     createdat = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     deletedat = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_usertokens", x => new { x.userid, x.loginprovider, x.name });
+                    table.PrimaryKey("pk_usertokens", x => x.id);
                     table.ForeignKey(
                         name: "fk_usertokens_users_userid",
                         column: x => x.userid,
@@ -288,6 +289,11 @@ namespace Identity.Persistence.Migrations
                 table: "users",
                 column: "username",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_usertokens_userid_loginprovider_name_deletedat",
+                table: "usertokens",
+                columns: new[] { "userid", "loginprovider", "name", "deletedat" });
         }
 
         /// <inheritdoc />

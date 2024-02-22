@@ -21,7 +21,8 @@ internal class TokenManager(ITokenStore<UserToken> tokenStore) : ITokenManager
             LoginProvider = loginProvider,
             Name = name,
             Value = value,
-            DeletedAt = expiration
+            DeletedAt = expiration,
+            CreatedAt = DateTimeOffset.UtcNow
         };
         return StoreTokenAsync(token);
     }

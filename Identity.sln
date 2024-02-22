@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deployment", "deployment", 
 	ProjectSection(SolutionItems) = preProject
 		deployment\docker-compose.yaml = deployment\docker-compose.yaml
 		deployment\.env = deployment\.env
+		deployment\docker-compose.debug.yaml = deployment\docker-compose.debug.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{45216C0C-A5A8-4D2A-BC85-C0F04B499460}"

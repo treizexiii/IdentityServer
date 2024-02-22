@@ -31,20 +31,29 @@ public class IdentityDb : DbContext, IDbContext
             b.HasData(RolesList.GetRoles());
         });
         builder.Entity<RoleClaims>(b => { });
-        builder.Entity<UserRole>(b => { b.HasKey(ur => new { ur.UserId, ur.RoleId }); });
+        builder.Entity<UserRole>(b =>
+        {
+            b.HasKey(ur => new { ur.UserId, ur.RoleId });
+        });
         builder.Entity<UserClaim>(b => { });
         builder.Entity<UserToken>(b =>
         {
-            b.HasKey(ut => new { ut.UserId, ut.LoginProvider, ut.Name });
+            b.HasIndex(ut => new { ut.UserId, ut.LoginProvider, ut.Name, ut.DeletedAt });
         });
-        builder.Entity<UserLogin>(b => { b.HasKey(ul => new { ul.LoginProvider, ul.ProviderKey }); });
+        builder.Entity<UserLogin>(b =>
+        {
+            b.HasKey(ul => new { ul.LoginProvider, ul.ProviderKey });
+        });
 
         builder.Entity<App>(b =>
         {
             b.HasIndex(a => a.Key).IsUnique();
             b.HasIndex(a => a.NormalizedName).IsUnique();
         });
-        builder.Entity<UserApp>(b => { b.HasKey(ua => new { ua.UserId, ua.AppId }); });
+        builder.Entity<UserApp>(b =>
+        {
+            b.HasKey(ua => new { ua.UserId, ua.AppId });
+        });
 
         base.OnModelCreating(builder);
     }

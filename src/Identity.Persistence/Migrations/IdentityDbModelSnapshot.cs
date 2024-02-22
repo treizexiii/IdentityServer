@@ -399,17 +399,10 @@ namespace Identity.Persistence.Migrations
 
             modelBuilder.Entity("Identity.Core.Entities.UserToken", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("userid");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text")
-                        .HasColumnName("loginprovider");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnName("id");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -419,13 +412,30 @@ namespace Identity.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deletedat");
 
+                    b.Property<string>("LoginProvider")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("loginprovider");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("userid");
+
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("value");
 
-                    b.HasKey("UserId", "LoginProvider", "Name")
+                    b.HasKey("Id")
                         .HasName("pk_usertokens");
+
+                    b.HasIndex("UserId", "LoginProvider", "Name", "DeletedAt")
+                        .HasDatabaseName("ix_usertokens_userid_loginprovider_name_deletedat");
 
                     b.ToTable("usertokens", (string)null);
                 });

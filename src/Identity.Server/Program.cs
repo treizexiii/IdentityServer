@@ -55,6 +55,4 @@ app.UseAuthorization();
 
 app.UseHttpsRedirection();
 
-Console.WriteLine(app.Configuration["Jwt:Key"]);
-
 app.Run();

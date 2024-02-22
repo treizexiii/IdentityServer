@@ -21,10 +21,10 @@ public class AuthController(
     [Route("register")]
     public async Task<IActionResult> RegisterAsync(RegisterDto registerDto)
     {
+        var guid = Guid.NewGuid();
         try
         {
             Logger.LogInformation("Register request");
-            var guid = Guid.NewGuid();
             await Transaction.BeginTransactionAsync(guid);
 
             var result = await authService.RegisterAsync(registerDto, RolesList.User);
@@ -39,7 +39,7 @@ public class AuthController(
         }
         catch (Exception e)
         {
-            await Transaction.RollbackTransactionAsync(UserId, e.Message);
+            await Transaction.RollbackTransactionAsync(guid, e.Message);
             return Error(e);
         }
     }
@@ -48,10 +48,10 @@ public class AuthController(
     [Route("login")]
     public async Task<IActionResult> LoginAsync(LoginDto loginDto)
     {
+        var guid = Guid.NewGuid();
         try
         {
             Logger.LogInformation("Login request");
-            var guid = Guid.NewGuid();
             await Transaction.BeginTransactionAsync(guid);
 
             var result = await authService.LoginAsync(loginDto);
@@ -69,7 +69,7 @@ public class AuthController(
         }
         catch (Exception e)
         {
-            await Transaction.RollbackTransactionAsync(UserId, e.Message);
+            await Transaction.RollbackTransactionAsync(guid, e.Message);
             return Error(e);
         }
     }
