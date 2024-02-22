@@ -36,21 +36,21 @@ services:
     networks:
       - identity-network
 
-  identity-database-migrator:
-    container_name: identity-database-migrator
-    build:
-      context: ../.
-      dockerfile: src/Identity.Migrator/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-    tty: true
-    networks:
-      - identity-network
+#  identity-database-migrator:
+#    container_name: identity-database-migrator
+#    build:
+#      context: ../.
+#      dockerfile: src/Identity.Migrator/Dockerfile
+#    environment:
+#      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+#      - DB_HOST=${DB_HOST}
+#      - DB_PORT=${DB_PORT}
+#      - DB_USER=${DB_USER}
+#      - DB_PASSWORD=${DB_PASSWORD}
+#      - DB_NAME=${DB_NAME}
+#    tty: true
+#    networks:
+#      - identity-network
 
 networks:
   identity-network:
