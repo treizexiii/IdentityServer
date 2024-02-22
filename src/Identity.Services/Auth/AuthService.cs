@@ -20,16 +20,29 @@ public class ServiceResult<T> : ServiceResult
 
 public static class ServiceResultFactory
 {
-    public static ServiceResult Ok() => new() { Success = true };
-    public static ServiceResult Fail(string message) => new ServiceResult<ProblemsMessage>
-        { Success = false, Data = new ProblemsMessage { Errors = { message } } };
+    public static ServiceResult Ok()
+    {
+        return new ServiceResult { Success = true };
+    }
+
+    public static ServiceResult Fail(string message)
+    {
+        return new ServiceResult<ProblemsMessage>
+            { Success = false, Data = new ProblemsMessage { Errors = { message } } };
+    }
 }
 
 public class ServiceResultFactory<T>
 {
     public static ServiceResult<T> Ok(T data)
-        => new() { Success = true, Data = data };
-    public static ServiceResult<T> Fail(T data) => new() { Success = false, Data = data };
+    {
+        return new ServiceResult<T> { Success = true, Data = data };
+    }
+
+    public static ServiceResult<T> Fail(T data)
+    {
+        return new ServiceResult<T> { Success = false, Data = data };
+    }
 }
 
 internal class AuthService(
@@ -46,27 +59,16 @@ internal class AuthService(
             .ControlEmail(registerDto.Email)
             .ControlPassword(registerDto.Password)
             .Execute();
-        if (errors != null)
-        {
-            return ServiceResultFactory<ProblemsMessage>.Fail(errors);
-        }
+        if (errors != null) return ServiceResultFactory<ProblemsMessage>.Fail(errors);
 
         if (await userRepository.IsExistAsync(registerDto.Email))
-        {
             return ServiceResultFactory.Fail("User already exists");
-        }
 
         var app = await appsRepository.GetAppAsync(registerDto.AppKey);
-        if (app == null)
-        {
-            return ServiceResultFactory.Fail("Provider not found");
-        }
+        if (app == null) return ServiceResultFactory.Fail("Provider not found");
 
         var role = await userRepository.GetRoleAsync(roleName);
-        if (role == null)
-        {
-            return ServiceResultFactory.Fail("Role not found");
-        }
+        if (role == null) return ServiceResultFactory.Fail("Role not found");
 
         var utc = DateTime.UtcNow;
 
@@ -109,27 +111,16 @@ internal class AuthService(
     public async Task<ServiceResult> LoginAsync(LoginDto loginDto)
     {
         var user = await userRepository.GetUserAsync(loginDto.Username);
-        if (user == null)
-        {
-            return ServiceResultFactory.Fail("Credentials error");
-        }
-        if (user.Active == false)
-        {
-            return ServiceResultFactory.Fail("User is not active");
-        }
+        if (user == null) return ServiceResultFactory.Fail("Credentials error");
+        if (user.Active == false) return ServiceResultFactory.Fail("User is not active");
         if (!DataHasher.ControlHash(loginDto.Password, user.PasswordHash, user.PasswordSalt))
-        {
             return ServiceResultFactory.Fail("Credentials error");
-        }
 
         string? appKey = null;
         if (loginDto.AppKey != null)
         {
             var app = await appsRepository.GetAppAsync(loginDto.AppKey);
-            if (app == null)
-            {
-                return ServiceResultFactory.Fail("Provider not found");
-            }
+            if (app == null) return ServiceResultFactory.Fail("Provider not found");
 
             appKey = app.Key;
         }
@@ -148,38 +139,23 @@ internal class AuthService(
 
     public async Task<ServiceResult> RefreshAsync(string? refreshToken)
     {
-        if (string.IsNullOrEmpty(refreshToken))
-        {
-            return ServiceResultFactory.Fail("Invalid token");
-        }
+        if (string.IsNullOrEmpty(refreshToken)) return ServiceResultFactory.Fail("Invalid token");
 
         var tokenBuilder = new JwtTokenBuilder(jwtOptions.Issuer, jwtOptions.Audience, jwtOptions.Key);
         var claims = tokenBuilder.ControlToken(refreshToken);
 
         var username = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-        if (string.IsNullOrEmpty(username))
-        {
-            return ServiceResultFactory.Fail("Invalid token");
-        }
+        if (string.IsNullOrEmpty(username)) return ServiceResultFactory.Fail("Invalid token");
 
         var user = await userRepository.GetUserAsync(username);
-        if (user is null)
-        {
-            return ServiceResultFactory.Fail("Invalid token");
-        }
+        if (user is null) return ServiceResultFactory.Fail("Invalid token");
 
         var token = await tokenManager.GetLastTokenAsync(user.Id,
             LoginProviders.Internal,
             TokenTypeList.RefreshToken);
-        if (token is null)
-        {
-            return ServiceResultFactory.Fail("Invalid token");
-        }
+        if (token is null) return ServiceResultFactory.Fail("Invalid token");
 
-        if (token.Value != refreshToken)
-        {
-            return ServiceResultFactory.Fail("Invalid token");
-        }
+        if (token.Value != refreshToken) return ServiceResultFactory.Fail("Invalid token");
 
         var appKey = claims.FirstOrDefault(c => c.Type == ClaimTypes.Spn)?.Value;
         var (accessToken, newRefreshToken) = await ProduceJwtToken(user, appKey);
@@ -196,38 +172,23 @@ internal class AuthService(
 
     public async Task<ServiceResult> LogoutAsync(string refreshToken)
     {
-        if (string.IsNullOrEmpty(refreshToken))
-        {
-            return ServiceResultFactory.Fail("Invalid token");
-        }
+        if (string.IsNullOrEmpty(refreshToken)) return ServiceResultFactory.Fail("Invalid token");
 
         var tokenBuilder = new JwtTokenBuilder(jwtOptions.Issuer, jwtOptions.Audience, jwtOptions.Key);
         var claims = tokenBuilder.ControlToken(refreshToken);
 
         var username = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-        if (string.IsNullOrEmpty(username))
-        {
-            return ServiceResultFactory.Fail("Invalid token");
-        }
+        if (string.IsNullOrEmpty(username)) return ServiceResultFactory.Fail("Invalid token");
 
         var user = await userRepository.GetUserAsync(username);
-        if (user is null)
-        {
-            return ServiceResultFactory.Fail("Invalid token");
-        }
+        if (user is null) return ServiceResultFactory.Fail("Invalid token");
 
         var token = await tokenManager.GetLastTokenAsync(user.Id,
             LoginProviders.Internal,
             TokenTypeList.RefreshToken);
-        if (token is null)
-        {
-            return ServiceResultFactory.Fail("Invalid token");
-        }
+        if (token is null) return ServiceResultFactory.Fail("Invalid token");
 
-        if (token.Value != refreshToken)
-        {
-            return ServiceResultFactory.Fail("Invalid token");
-        }
+        if (token.Value != refreshToken) return ServiceResultFactory.Fail("Invalid token");
 
         await tokenManager.RevokeTokenAsync(token);
 
@@ -240,10 +201,7 @@ internal class AuthService(
             .AddUser(user)
             .AddRole(user.UserRole.Role);
 
-        if (appKey != null)
-        {
-            jwtBuilder.AddProvider(appKey);
-        }
+        if (appKey != null) jwtBuilder.AddProvider(appKey);
 
         var jwtToken = jwtBuilder.BuildJwtToken();
         var refreshToken = jwtBuilder.BuildRefreshToken(jwtToken);

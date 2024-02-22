@@ -9,16 +9,16 @@ namespace Identity.Core.Tools;
 public class JwtTokenBuilder
 {
     private readonly string _audience;
-    private readonly string _issuer;
-    private readonly byte[] _secretKey;
-
-    private string? _id;
-    private string? _username;
-    private string? _email;
-    private string? _role;
-    private string? _provider;
 
     private readonly Dictionary<string, string> _customClaims = new();
+    private readonly string _issuer;
+    private readonly byte[] _secretKey;
+    private string? _email;
+
+    private string? _id;
+    private string? _provider;
+    private string? _role;
+    private string? _username;
 
     public JwtTokenBuilder(string issuer, string audience, string secretKey)
     {

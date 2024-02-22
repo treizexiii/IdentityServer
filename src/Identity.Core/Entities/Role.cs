@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-
 namespace Identity.Core.Entities;
 
 public class Role
@@ -14,6 +12,10 @@ public class Role
 
 public static class RolesList
 {
+    public const string SuperAdmin = "SuperAdmin";
+    public const string Admin = "Admin";
+    public const string User = "User";
+
     private static readonly List<Role> Roles =
     [
         new Role
@@ -42,8 +44,4 @@ public static class RolesList
     {
         return Roles.First(r => r.Name == roleName);
     }
-
-    public const string SuperAdmin = "SuperAdmin";
-    public const string Admin = "Admin";
-    public const string User = "User";
 }

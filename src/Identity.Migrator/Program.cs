@@ -17,8 +17,8 @@ DotEnv.Load(".env");
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureHostConfiguration(builder =>
     {
-        builder.AddJsonFile("appsettings.json", optional: true);
-        builder.AddJsonFile($"appsettings.{env}.json", optional: true);
+        builder.AddJsonFile("appsettings.json", true);
+        builder.AddJsonFile($"appsettings.{env}.json", true);
         builder.AddEnvironmentVariables();
     })
     .ConfigureServices((hostContext, services) =>

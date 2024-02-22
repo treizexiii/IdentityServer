@@ -10,7 +10,7 @@ public static class SwaggerProvider
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo {Title = "Identity.Service", Version = "v1"});
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Identity.Service", Version = "v1" });
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
@@ -33,8 +33,7 @@ public static class SwaggerProvider
                         },
                         Scheme = "oauth2",
                         Name = "Bearer",
-                        In = ParameterLocation.Header,
-
+                        In = ParameterLocation.Header
                     },
                     new List<string>()
                 }

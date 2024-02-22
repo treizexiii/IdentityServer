@@ -5,20 +5,20 @@ namespace Tools.TransactionsManager.Data;
 
 public class TransactionInfo
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
-    public Guid UserId { get; init; }
-    public DateTimeOffset StartTime { get; init; }
-    public bool IsFailed { get; private set; } = false;
-    public List<TransactionStatus> StatusHistory { get; init; } = [];
-    public Dictionary<string, IDbContextTransaction> Context { get; init; } = new();
-    public string Message { get; private set; } = string.Empty;
-
     public TransactionInfo(Guid userId)
     {
         UserId = userId;
         StartTime = DateTime.UtcNow;
         StatusHistory.Add(TransactionStatusEnum.Started);
     }
+
+    public Guid Id { get; init; } = Guid.NewGuid();
+    public Guid UserId { get; init; }
+    public DateTimeOffset StartTime { get; init; }
+    public bool IsFailed { get; private set; }
+    public List<TransactionStatus> StatusHistory { get; init; } = [];
+    public Dictionary<string, IDbContextTransaction> Context { get; init; } = new();
+    public string Message { get; private set; } = string.Empty;
 
     public void AddTransaction(IDbContext context, IDbContextTransaction contextTransaction)
     {
@@ -34,7 +34,6 @@ public class TransactionInfo
     public void SetMessage(string message)
     {
         Message = message;
-
     }
 
     public void SetStatus(TransactionStatus status)

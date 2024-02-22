@@ -5,7 +5,8 @@ namespace Identity.Core.Managers;
 
 public interface ITokenManager
 {
-    Task<UserToken> GenerateTokenAsync(Guid userId, string loginProvider, string name, string value, DateTime? expiration);
+    Task<UserToken> GenerateTokenAsync(Guid userId, string loginProvider, string name, string value,
+        DateTime? expiration);
     Task<IEnumerable<UserToken>> GetAllTokensAsync(Guid userId);
     Task<UserToken?> GetLastTokenAsync(Guid userId, string loginProvider, string name);
     Task RevokeTokenAsync(UserToken token);
@@ -13,7 +14,8 @@ public interface ITokenManager
 
 internal class TokenManager(ITokenStore<UserToken> tokenStore) : ITokenManager
 {
-    public Task<UserToken> GenerateTokenAsync(Guid userId, string loginProvider, string name, string value, DateTime? expiration)
+    public Task<UserToken> GenerateTokenAsync(Guid userId, string loginProvider, string name, string value,
+        DateTime? expiration)
     {
         var token = new UserToken
         {
@@ -47,18 +49,6 @@ internal class TokenManager(ITokenStore<UserToken> tokenStore) : ITokenManager
         return await tokenStore.GetTokenAsync(query);
     }
 
-    public async Task<UserToken> StoreTokenAsync(UserToken token)
-    {
-        var currentToken = await GetLastTokenAsync(token.UserId, token.LoginProvider, token.Name);
-        if (currentToken is not null)
-        {
-            await RevokeTokenAsync(currentToken);
-        }
-
-        await tokenStore.AddAsync(token);
-        return token;
-    }
-
     public async Task RevokeTokenAsync(UserToken token)
     {
         var currentToken = await GetLastTokenAsync(token.UserId, token.LoginProvider, token.Name);
@@ -67,5 +57,14 @@ internal class TokenManager(ITokenStore<UserToken> tokenStore) : ITokenManager
             currentToken.DeletedAt = DateTimeOffset.UtcNow;
             await tokenStore.UpdateAsync(currentToken);
         }
+    }
+
+    private async Task<UserToken> StoreTokenAsync(UserToken token)
+    {
+        var currentToken = await GetLastTokenAsync(token.UserId, token.LoginProvider, token.Name);
+        if (currentToken is not null) await RevokeTokenAsync(currentToken);
+
+        await tokenStore.AddAsync(token);
+        return token;
     }
 }

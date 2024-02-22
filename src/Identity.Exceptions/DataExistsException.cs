@@ -1,2 +1,1 @@
 namespace Identity.Exceptions;
-

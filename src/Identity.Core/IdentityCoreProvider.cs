@@ -28,10 +28,7 @@ public static class IdentityCoreProvider
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = tokenValidationParameters;
-            });
+            .AddJwtBearer(options => { options.TokenValidationParameters = tokenValidationParameters; });
 
         services.AddScoped<ITokenManager, TokenManager>();
         services.AddScoped<IUserClaimsPrincipalFactory<User>, UserClaimsPrincipalFactory>();

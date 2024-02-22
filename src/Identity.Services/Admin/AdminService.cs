@@ -21,10 +21,7 @@ public class AdminService(IAppsRepository appsRepository) : IAdminService
         app.Name = registerAppDto.AppName;
         app.NormalizedName = normalizeName;
 
-        if (await appsRepository.IsExistAsync(app.NormalizedName))
-        {
-            throw new DataException("App already exists");
-        }
+        if (await appsRepository.IsExistAsync(app.NormalizedName)) throw new DataException("App already exists");
 
         await appsRepository.AddAppAsync(app);
 

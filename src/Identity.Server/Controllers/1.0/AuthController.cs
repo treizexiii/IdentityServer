@@ -60,6 +60,7 @@ public class AuthController(
                 await Transaction.RollbackTransactionAsync(UserId, "Bad request");
                 return BadRequest(result as ServiceResult<ProblemsMessage>, UserId);
             }
+
             await Transaction.CommitTransactionAsync(guid);
 
             var accessToken = result as ServiceResult<JwtToken>;
@@ -85,10 +86,7 @@ public class AuthController(
             await Transaction.BeginTransactionAsync(guid);
 
             var refreshToken = Request.Cookies[TokenTypeList.RefreshToken];
-            if (string.IsNullOrEmpty(refreshToken))
-            {
-                throw new Exception("Invalid refresh token");
-            }
+            if (string.IsNullOrEmpty(refreshToken)) throw new Exception("Invalid refresh token");
 
             var result = await authService.RefreshAsync(refreshToken);
             if (!result.Success)
@@ -120,10 +118,7 @@ public class AuthController(
             await Transaction.BeginTransactionAsync(UserId);
 
             var refreshToken = Request.Cookies[TokenTypeList.RefreshToken];
-            if (string.IsNullOrEmpty(refreshToken))
-            {
-                throw new Exception("Invalid refresh token");
-            }
+            if (string.IsNullOrEmpty(refreshToken)) throw new Exception("Invalid refresh token");
 
             var result = await authService.LogoutAsync(refreshToken);
             if (!result.Success)

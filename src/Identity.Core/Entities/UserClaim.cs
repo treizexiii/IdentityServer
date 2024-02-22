@@ -19,10 +19,7 @@ public class UserClaim
 
     public void InitializeFromClaim(Claim? other)
     {
-        if (other == null)
-        {
-            return;
-        }
+        if (other == null) return;
 
         ClaimType = other.Type;
         ClaimValue = other.Value;

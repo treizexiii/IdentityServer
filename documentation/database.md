@@ -5,12 +5,12 @@
 Prerequisites:
 
 - a local .env file in src/Identity.Migrator with the following content:
-  - `ASPNETCORE_ENVIRONMENT`
-  - `DB_USER`
-  - `DB_PASSWORD`
-  - `DB_NAME`
-  - `DB_PORT`
-  - `DB_HOST`
+    - `ASPNETCORE_ENVIRONMENT`
+    - `DB_USER`
+    - `DB_PASSWORD`
+    - `DB_NAME`
+    - `DB_PORT`
+    - `DB_HOST`
 
 To create a new migration, run the following command in the root of the project:
 

@@ -32,12 +32,8 @@ public static class DataHasher
         using var hmac = new HMACSHA512(salt);
         var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
         for (var i = 0; i < computedHash.Length; i++)
-        {
             if (computedHash[i] != hash[i])
-            {
                 return false;
-            }
-        }
 
         return true;
     }

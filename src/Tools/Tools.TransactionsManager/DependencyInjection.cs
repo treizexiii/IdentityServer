@@ -13,9 +13,7 @@ public static class DependencyInjection
             var logger = provider.GetRequiredService<ILogger<TransactionManager>>();
             var context = provider.GetRequiredService<T>();
             if (context is not IDbContext dbContext)
-            {
                 throw new ArgumentException($"Context {typeof(T).Name} is not IDbContext");
-            }
             return new TransactionManager(logger, dbContext);
         });
 

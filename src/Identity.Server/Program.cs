@@ -3,7 +3,6 @@ using Identity.Persistence;
 using Identity.Persistence.Database;
 using Identity.Server.Tools;
 using Identity.Services;
-using Microsoft.IdentityModel.Tokens;
 using Tools.TransactionsManager;
 
 var builder = WebApplication.CreateBuilder(args);

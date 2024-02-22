@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
 
 namespace Identity.Core.Entities;
 
@@ -14,15 +13,12 @@ public class RoleClaims
 
     public Claim ToClaim()
     {
-        return new(ClaimType, ClaimValue);
+        return new Claim(ClaimType, ClaimValue);
     }
 
     public void InitializeFromClaim(Claim? other)
     {
-        if (other == null)
-        {
-            return;
-        }
+        if (other == null) return;
 
         ClaimType = other.Type;
         ClaimValue = other.Value;

@@ -8,6 +8,11 @@ namespace Identity.Persistence.Repositories;
 
 public class UsersRepositories(IdentityDb context) : IUsersRepository, IAsyncDisposable
 {
+    public async ValueTask DisposeAsync()
+    {
+        await context.DisposeAsync();
+    }
+
     public async Task<IEnumerable<User>> GetUsersAsync()
     {
         return await context.Users.ToListAsync();
@@ -49,10 +54,7 @@ public class UsersRepositories(IdentityDb context) : IUsersRepository, IAsyncDis
                 t.LoginProvider == token.LoginProvider &&
                 t.Name == token.Name)
             .FirstOrDefaultAsync();
-        if (tokens is not null)
-        {
-            context.UserTokens.Remove(tokens);
-        }
+        if (tokens is not null) context.UserTokens.Remove(tokens);
         await context.UserTokens.AddAsync(token);
     }
 
@@ -144,10 +146,5 @@ public class UsersRepositories(IdentityDb context) : IUsersRepository, IAsyncDis
     public void Dispose()
     {
         context.Dispose();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await context.DisposeAsync();
     }
 }

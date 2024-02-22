@@ -25,7 +25,8 @@ public static class IdentityPersistanceProvider
         return services;
     }
 
-    public static string BuildConnectionString(string host, string port, string database, string username, string password)
+    public static string BuildConnectionString(string host, string port, string database, string username,
+        string password)
     {
         var connectionStringBuilder = new NpgsqlConnectionStringBuilder();
         connectionStringBuilder.Host = host;

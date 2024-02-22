@@ -1,5 +1,3 @@
-using Identity.Core.Entities;
-
 namespace Identity.Core.Tools;
 
 // public class EmailSender : IEmailSender<User>

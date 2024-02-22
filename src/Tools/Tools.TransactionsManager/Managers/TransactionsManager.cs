@@ -39,10 +39,7 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
 
     public async Task<TransactionInfo> CommitTransactionAsync(Guid userId)
     {
-        if (_transaction is null)
-        {
-            throw new ArgumentException($"Transaction for user {userId} not found");
-        }
+        if (_transaction is null) throw new ArgumentException($"Transaction for user {userId} not found");
 
         TransactionInfo currentInfo;
         try
@@ -50,9 +47,7 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
             foreach (var transaction in _transaction.Context)
             {
                 if (transaction.Value.TransactionId != context.CurrentTransaction?.TransactionId)
-                {
                     throw new ArgumentException($"Transaction for context {transaction.Key} not current");
-                }
 
                 await context.SaveChangesAsync();
                 await context.CurrentTransaction!.CommitAsync();
@@ -79,10 +74,7 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
         }
         finally
         {
-            foreach (var transaction in _transaction.Context)
-            {
-                await transaction.Value.DisposeAsync();
-            }
+            foreach (var transaction in _transaction.Context) await transaction.Value.DisposeAsync();
 
             _transaction = null;
 
@@ -95,9 +87,7 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
     public async Task<TransactionInfo> RollbackTransactionAsync(Guid userId, Exception e)
     {
         if (_transaction is null)
-        {
             throw new ArgumentException($"Transaction for user {userId} not found or not started");
-        }
 
         TransactionInfo currentInfo;
         try
@@ -105,9 +95,7 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
             foreach (var transaction in _transaction.Context)
             {
                 if (transaction.Value.TransactionId != context.CurrentTransaction?.TransactionId)
-                {
                     throw new ArgumentException($"Transaction for context {transaction.Key} not current");
-                }
 
                 context.ChangeTracker.Entries().ToList().ForEach(x => x.Reload());
                 await context.CurrentTransaction.RollbackAsync();
@@ -128,10 +116,7 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
         }
         finally
         {
-            foreach (var transaction in _transaction.Context)
-            {
-                await transaction.Value.DisposeAsync();
-            }
+            foreach (var transaction in _transaction.Context) await transaction.Value.DisposeAsync();
 
             _transaction = null;
 
@@ -144,9 +129,7 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
     public async Task<TransactionInfo> RollbackTransactionAsync(Guid userId, string message)
     {
         if (_transaction is null)
-        {
             throw new ArgumentException($"Transaction for user {userId} not found or not started");
-        }
 
         TransactionInfo currentInfo;
         try
@@ -154,9 +137,7 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
             foreach (var transaction in _transaction.Context)
             {
                 if (transaction.Value.TransactionId != context.CurrentTransaction?.TransactionId)
-                {
                     throw new ArgumentException($"Transaction for context {transaction.Key} not current");
-                }
 
                 context.ChangeTracker.Entries().ToList().ForEach(x => x.Reload());
                 await context.CurrentTransaction.RollbackAsync();
@@ -177,10 +158,7 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
         }
         finally
         {
-            foreach (var transaction in _transaction.Context)
-            {
-                await transaction.Value.DisposeAsync();
-            }
+            foreach (var transaction in _transaction.Context) await transaction.Value.DisposeAsync();
 
             _transaction = null;
 

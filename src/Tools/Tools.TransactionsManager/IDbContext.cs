@@ -5,8 +5,8 @@ namespace Tools.TransactionsManager;
 
 public interface IDbContext
 {
-    Task<IDbContextTransaction> BeginTransactionAsync();
-    Task SaveChangesAsync();
     IDbContextTransaction? CurrentTransaction { get; }
     ChangeTracker ChangeTracker { get; }
+    Task<IDbContextTransaction> BeginTransactionAsync();
+    Task SaveChangesAsync();
 }

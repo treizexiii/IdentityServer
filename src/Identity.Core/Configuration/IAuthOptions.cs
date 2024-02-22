@@ -1,4 +1,3 @@
-
 namespace Identity.Core.Configuration;
 
 public interface IAuthOptions

@@ -15,10 +15,7 @@ public class IdentityHttpClient(HttpClient client) : IIdentityClient
         response.EnsureSuccessStatusCode();
         var responseContent = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<ApiResponse<JwtToken>>(responseContent);
-        if (data == null)
-        {
-            throw new WebException("Invalid response");
-        }
+        if (data == null) throw new WebException("Invalid response");
         return data;
     }
 
@@ -27,10 +24,7 @@ public class IdentityHttpClient(HttpClient client) : IIdentityClient
         var response = await client.PostAsync("api/Auth/refresh", null);
         var responseContent = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<ApiResponse<JwtToken>>(responseContent);
-        if (data == null)
-        {
-            throw new WebException("Invalid response");
-        }
+        if (data == null) throw new WebException("Invalid response");
         return data;
     }
 
@@ -39,10 +33,7 @@ public class IdentityHttpClient(HttpClient client) : IIdentityClient
         var response = await client.PostAsync("api/Auth/logout", null);
         var responseContent = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<ApiResponse>(responseContent);
-        if (data == null)
-        {
-            throw new WebException("Invalid response");
-        }
+        if (data == null) throw new WebException("Invalid response");
         return data;
     }
 
@@ -53,10 +44,7 @@ public class IdentityHttpClient(HttpClient client) : IIdentityClient
         response.EnsureSuccessStatusCode();
         var responseContent = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<ApiResponse>(responseContent);
-        if (data == null)
-        {
-            throw new WebException("Invalid response");
-        }
+        if (data == null) throw new WebException("Invalid response");
         return data;
     }
 
@@ -67,10 +55,7 @@ public class IdentityHttpClient(HttpClient client) : IIdentityClient
         response.EnsureSuccessStatusCode();
         var responseContent = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<ApiResponse>(responseContent);
-        if (data == null)
-        {
-            throw new WebException("Invalid response");
-        }
+        if (data == null) throw new WebException("Invalid response");
         return data;
     }
 }

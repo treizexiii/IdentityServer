@@ -41,7 +41,7 @@ public abstract class IdentityControllerBase(
 
     protected IActionResult Ok<T>(T data)
     {
-        var response = new ApiResponse<T>()
+        var response = new ApiResponse<T>
         {
             Version = "1.0",
             Code = 200,

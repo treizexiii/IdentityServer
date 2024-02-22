@@ -16,6 +16,24 @@ public class MultiContextTransactionManager(
         return Begin(userId, currentContext);
     }
 
+    public Task<TransactionInfo> CommitTransactionAsync(Guid userId)
+    {
+        var currentContext = contexts.ToList();
+        return Commit(userId, currentContext);
+    }
+
+    public Task<TransactionInfo> RollbackTransactionAsync(Guid userId, Exception e)
+    {
+        var currentContext = contexts.ToList();
+        return Rollback(userId, e, currentContext);
+    }
+
+    public Task<TransactionInfo> RollbackTransactionAsync(Guid userId, string message)
+    {
+        var currentContext = contexts.ToList();
+        return Rollback(userId, message, currentContext);
+    }
+
     public async Task BeginTransactionAsync(Guid userId, params Type[] contextName)
     {
         var currentContext = contextName.Select(GetContext).ToList();
@@ -36,12 +54,6 @@ public class MultiContextTransactionManager(
         logger.LogInformation("Transaction started for user {UserId}", userId);
     }
 
-    public Task<TransactionInfo> CommitTransactionAsync(Guid userId)
-    {
-        var currentContext = contexts.ToList();
-        return Commit(userId, currentContext);
-    }
-
     public async Task<TransactionInfo> CommitTransactionAsync(Guid userId, params Type[] contextName)
     {
         var currentContext = contextName.Select(GetContext).ToList();
@@ -51,26 +63,18 @@ public class MultiContextTransactionManager(
     private async Task<TransactionInfo> Commit(Guid userId, List<IDbContext> currentContext)
     {
         var transactionInfo = _transactionList.FirstOrDefault(x => x.UserId == userId);
-        if (transactionInfo is null)
-        {
-            throw new ArgumentException($"Transaction for user {userId} not found");
-        }
+        if (transactionInfo is null) throw new ArgumentException($"Transaction for user {userId} not found");
 
         try
         {
             foreach (var transaction in transactionInfo.Context)
             {
                 var db = currentContext.FirstOrDefault(x => x.GetType().Name == transaction.Key);
-                if (db is null)
-                {
-                    throw new ArgumentException($"Context {transaction.Key} not found");
-                }
+                if (db is null) throw new ArgumentException($"Context {transaction.Key} not found");
 
                 var currentTransaction = db.CurrentTransaction;
                 if (currentTransaction is null || currentTransaction.TransactionId != transaction.Value.TransactionId)
-                {
                     throw new ArgumentException($"Transaction for context {transaction.Key} not current");
-                }
 
                 await db.SaveChangesAsync();
                 await currentTransaction.CommitAsync();
@@ -95,10 +99,7 @@ public class MultiContextTransactionManager(
         }
         finally
         {
-            foreach (var transaction in transactionInfo.Context)
-            {
-                await transaction.Value.DisposeAsync();
-            }
+            foreach (var transaction in transactionInfo.Context) await transaction.Value.DisposeAsync();
 
             _transactionList.Remove(transactionInfo);
 
@@ -108,47 +109,28 @@ public class MultiContextTransactionManager(
         return transactionInfo;
     }
 
-    public Task<TransactionInfo> RollbackTransactionAsync(Guid userId, Exception e)
-    {
-        var currentContext = contexts.ToList();
-        return Rollback(userId, e, currentContext);
-    }
-
-    public Task<TransactionInfo> RollbackTransactionAsync(Guid userId, string message)
-    {
-        var currentContext = contexts.ToList();
-        return Rollback(userId, message, currentContext);
-    }
-
     public async Task<TransactionInfo> RollbackTransactionAsync(Guid userId, Exception e, params Type[] contextName)
     {
         var currentContext = contextName.Select(GetContext).ToList();
         return await Rollback(userId, e, currentContext);
     }
 
-    private async Task<TransactionInfo> Rollback(Guid userId, Exception e, IReadOnlyCollection<IDbContext> currentContext)
+    private async Task<TransactionInfo> Rollback(Guid userId, Exception e,
+        IReadOnlyCollection<IDbContext> currentContext)
     {
         var transactionInfo = _transactionList.FirstOrDefault(x => x.UserId == userId);
-        if (transactionInfo is null)
-        {
-            throw new ArgumentException($"Transaction for user {userId} not found");
-        }
+        if (transactionInfo is null) throw new ArgumentException($"Transaction for user {userId} not found");
 
         try
         {
             foreach (var transaction in transactionInfo.Context)
             {
                 var db = currentContext.FirstOrDefault(x => x.GetType().Name == transaction.Key);
-                if (db is null)
-                {
-                    throw new ArgumentException($"Context {transaction.Key} not found");
-                }
+                if (db is null) throw new ArgumentException($"Context {transaction.Key} not found");
 
                 var currentTransaction = db.CurrentTransaction;
                 if (currentTransaction is null || currentTransaction.TransactionId != transaction.Value.TransactionId)
-                {
                     throw new ArgumentException($"Transaction for context {transaction.Key} not current");
-                }
 
                 db.ChangeTracker.Entries().ToList().ForEach(x => x.Reload());
                 await currentTransaction.RollbackAsync();
@@ -168,10 +150,7 @@ public class MultiContextTransactionManager(
         }
         finally
         {
-            foreach (var transaction in transactionInfo.Context)
-            {
-                transaction.Value.Dispose();
-            }
+            foreach (var transaction in transactionInfo.Context) transaction.Value.Dispose();
 
             _transactionList.Remove(transactionInfo);
 
@@ -181,29 +160,22 @@ public class MultiContextTransactionManager(
         return transactionInfo;
     }
 
-    private async Task<TransactionInfo> Rollback(Guid userId, string message, IReadOnlyCollection<IDbContext> currentContext)
+    private async Task<TransactionInfo> Rollback(Guid userId, string message,
+        IReadOnlyCollection<IDbContext> currentContext)
     {
         var transactionInfo = _transactionList.FirstOrDefault(x => x.UserId == userId);
-        if (transactionInfo is null)
-        {
-            throw new ArgumentException($"Transaction for user {userId} not found");
-        }
+        if (transactionInfo is null) throw new ArgumentException($"Transaction for user {userId} not found");
 
         try
         {
             foreach (var transaction in transactionInfo.Context)
             {
                 var db = currentContext.FirstOrDefault(x => x.GetType().Name == transaction.Key);
-                if (db is null)
-                {
-                    throw new ArgumentException($"Context {transaction.Key} not found");
-                }
+                if (db is null) throw new ArgumentException($"Context {transaction.Key} not found");
 
                 var currentTransaction = db.CurrentTransaction;
                 if (currentTransaction is null || currentTransaction.TransactionId != transaction.Value.TransactionId)
-                {
                     throw new ArgumentException($"Transaction for context {transaction.Key} not current");
-                }
 
                 db.ChangeTracker.Entries().ToList().ForEach(x => x.Reload());
                 await currentTransaction.RollbackAsync();
@@ -223,10 +195,7 @@ public class MultiContextTransactionManager(
         }
         finally
         {
-            foreach (var transaction in transactionInfo.Context)
-            {
-                transaction.Value.Dispose();
-            }
+            foreach (var transaction in transactionInfo.Context) transaction.Value.Dispose();
 
             _transactionList.Remove(transactionInfo);
 
@@ -239,10 +208,7 @@ public class MultiContextTransactionManager(
     private IDbContext GetContext(Type contextName)
     {
         var context = contexts.FirstOrDefault(x => x.GetType() == contextName);
-        if (context is null)
-        {
-            throw new ArgumentException($"DbContext {contextName} not found");
-        }
+        if (context is null) throw new ArgumentException($"DbContext {contextName} not found");
 
         return context;
     }
