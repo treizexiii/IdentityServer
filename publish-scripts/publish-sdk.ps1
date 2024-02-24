@@ -44,6 +44,12 @@ if ($null -eq $nuggetApiKey)
     exit 1
 }
 
+# is path exists ./artifacts
+if (!(Test-Path -Path "./artifacts"))
+{
+    New-Item -ItemType Directory -Path "./artifacts"
+}
+
 Write-Host "Publishing SDK" -ForegroundColor Green
 Write-Output "Retore project"
 dotnet restore
@@ -54,5 +60,5 @@ dotnet pack --no-restore --no-build -c Release -o ./artifacts  src/Identity.Sdk/
 dotnet pack --no-restore --no-build -c Release -o ./artifacts  src/Tools/Tools.TransactionsManager/Tools.TransactionsManager.csproj
 
 Write-Output "Publish project to $nuggetRegistry"
-dotnet nuget push ./artifacts/Identity.Sdk.0.9.0.nupkg --source $nuggetRegistry --api-key $nuggetApiKey
+dotnet nuget push ./artifacts/Identity.Sdk.1.0.0.nupkg --source $nuggetRegistry --api-key $nuggetApiKey
 

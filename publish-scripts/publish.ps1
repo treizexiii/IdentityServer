@@ -26,7 +26,6 @@ if (Test-Path 'publish-scripts/.env')
     $envFile = Get-Content -Path 'publish-scripts/.env'
     foreach ($line in $envFile)
     {
-        Write-Output $line
         $parts = $line -split '=', 2
         if ($parts[0] -eq "REGISTRY")
         {

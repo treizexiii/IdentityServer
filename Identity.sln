@@ -46,6 +46,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "publish-scripts", "publish-
 		publish-script\publish.ps1 = publish-scripts\publish.ps1
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Console", "src\Identity.Console\Identity.Console.csproj", "{1012E4C5-C306-4B5D-A5A4-D0E092885758}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{7C920E19-2D4B-46D3-A98A-0519DCB06B8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C920E19-2D4B-46D3-A98A-0519DCB06B8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C920E19-2D4B-46D3-A98A-0519DCB06B8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1012E4C5-C306-4B5D-A5A4-D0E092885758}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1012E4C5-C306-4B5D-A5A4-D0E092885758}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1012E4C5-C306-4B5D-A5A4-D0E092885758}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1012E4C5-C306-4B5D-A5A4-D0E092885758}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8AB844AE-F608-4A0A-8B21-53EA079C157F} = {90D7D983-B1E8-4374-BCBA-D4FB4A12CAF0}
@@ -103,5 +109,6 @@ Global
 		{476D33FA-0C73-4B79-95E2-754E90935E4C} = {90D7D983-B1E8-4374-BCBA-D4FB4A12CAF0}
 		{53A788B8-0A5C-4CA2-A834-DB54EF255400} = {90D7D983-B1E8-4374-BCBA-D4FB4A12CAF0}
 		{7C920E19-2D4B-46D3-A98A-0519DCB06B8F} = {90D7D983-B1E8-4374-BCBA-D4FB4A12CAF0}
+		{1012E4C5-C306-4B5D-A5A4-D0E092885758} = {90D7D983-B1E8-4374-BCBA-D4FB4A12CAF0}
 	EndGlobalSection
 EndGlobal

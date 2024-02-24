@@ -66,7 +66,7 @@ public abstract class IdentityControllerBase(
         return base.Ok(response);
     }
 
-    protected IActionResult BadRequest(ServiceResult<ProblemsMessage> result, Guid userId)
+    protected IActionResult BadRequest(ServiceResult<ProblemsMessage> result)
     {
         var response = new ApiResponse<ProblemsMessage>
         {
@@ -74,7 +74,8 @@ public abstract class IdentityControllerBase(
             Code = 400,
             Success = false,
             Message = "Bad request",
-            Data = result.Data
+            Data = result.Data,
+            Errors = result.Data.Errors.ToArray()
         };
 
         return base.BadRequest(response);

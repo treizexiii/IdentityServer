@@ -30,8 +30,8 @@ public class AuthController(
             var result = await authService.RegisterAsync(registerDto, RolesList.User);
             if (!result.Success)
             {
-                await Transaction.RollbackTransactionAsync(UserId, "Bad request");
-                return BadRequest(result as ServiceResult<ProblemsMessage>, UserId);
+                await Transaction.RollbackTransactionAsync(guid, "Bad request");
+                return BadRequest(result as ServiceResult<ProblemsMessage>);
             }
 
             await Transaction.CommitTransactionAsync(guid);
@@ -57,8 +57,8 @@ public class AuthController(
             var result = await authService.LoginAsync(loginDto);
             if (!result.Success)
             {
-                await Transaction.RollbackTransactionAsync(UserId, "Bad request");
-                return BadRequest(result as ServiceResult<ProblemsMessage>, UserId);
+                await Transaction.RollbackTransactionAsync(guid, "Bad request");
+                return BadRequest(result as ServiceResult<ProblemsMessage>);
             }
 
             await Transaction.CommitTransactionAsync(guid);
@@ -83,7 +83,7 @@ public class AuthController(
         {
             Logger.LogInformation("Refresh request");
             var guid = Guid.NewGuid();
-            await Transaction.BeginTransactionAsync(guid);
+            await Transaction.BeginTransactionAsync(UserId);
 
             var refreshToken = Request.Cookies[TokenTypeList.RefreshToken];
             if (string.IsNullOrEmpty(refreshToken)) throw new Exception("Invalid refresh token");
@@ -92,12 +92,12 @@ public class AuthController(
             if (!result.Success)
             {
                 await Transaction.RollbackTransactionAsync(UserId, "Bad request");
-                return BadRequest(result as ServiceResult<ProblemsMessage>, UserId);
+                return BadRequest(result as ServiceResult<ProblemsMessage>);
             }
 
             var accessToken = result as ServiceResult<JwtToken>;
 
-            await Transaction.CommitTransactionAsync(guid);
+            await Transaction.CommitTransactionAsync(UserId);
 
             AppendCookie(TokenTypeList.RefreshToken, accessToken.Data.RefreshToken);
             return Ok(accessToken.Data);
@@ -124,7 +124,7 @@ public class AuthController(
             if (!result.Success)
             {
                 await Transaction.RollbackTransactionAsync(UserId, "Bad request");
-                return BadRequest(result as ServiceResult<ProblemsMessage>, UserId);
+                return BadRequest(result as ServiceResult<ProblemsMessage>);
             }
 
             await Transaction.CommitTransactionAsync(UserId);

@@ -5,8 +5,8 @@ namespace Identity.Sdk;
 
 public interface IIdentityClient
 {
-    Task<ApiResponse> LoginAsync(LoginDto loginDto);
-    Task<ApiResponse> RefreshTokenAsync();
+    Task<ApiResponse<JwtToken>> LoginAsync(LoginDto loginDto);
+    Task<ApiResponse<JwtToken>> RefreshTokenAsync();
     Task<ApiResponse> LogoutAsync();
     Task<ApiResponse> RegisterAsync(RegisterDto registerDto);
     Task<ApiResponse> RegisterAppAsync(RegisterAppDto registerAppDto);

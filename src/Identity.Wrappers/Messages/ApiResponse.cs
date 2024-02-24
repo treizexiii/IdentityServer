@@ -6,6 +6,7 @@ public class ApiResponse
     public int Code { get; set; }
     public bool Success { get; set; }
     public string Message { get; set; } = null!;
+    public string[]? Errors { get; set; }
 }
 
 public class ApiResponse<T> : ApiResponse

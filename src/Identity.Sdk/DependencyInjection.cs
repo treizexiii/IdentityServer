@@ -4,7 +4,7 @@ namespace Identity.Sdk;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddRestClient(IServiceCollection services, string url)
+    public static IServiceCollection AddRestClient(this IServiceCollection services, string url)
     {
         services.AddHttpClient<IIdentityClient, IdentityHttpClient>(client =>
         {

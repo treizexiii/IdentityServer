@@ -4,11 +4,12 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.9.0</Version>
+        <Version>1.0.0</Version>
         <ProductName>Identity.Sdk</ProductName>
         <Authors>Treize</Authors>
         <Title>Identity.Sdk</Title>
         <PackageTags>0.9</PackageTags>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
