@@ -26,11 +26,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Identity.Persistence\Identity.Persistence.csproj"/>
+        <ProjectReference Include="..\Identity.Services\Identity.Services.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <None Update=".env">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="appsettings.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

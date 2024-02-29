@@ -1,15 +1,9 @@
+using Identity.Core.Configuration;
 using Microsoft.Extensions.Configuration;
 
-namespace Identity.Services.Auth;
+namespace Identity.Services.Configuration;
 
-public interface IJwtOptions
-{
-    string Issuer { get; }
-    string Audience { get; }
-    string Key { get; }
-}
-
-public class JwtOptions(IConfiguration configuration) : IJwtOptions
+internal class JwtOptions(IConfiguration configuration) : IJwtOptions
 {
     public string Issuer => configuration["Jwt:Issuer"];
 

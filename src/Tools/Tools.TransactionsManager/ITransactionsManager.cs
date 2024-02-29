@@ -7,6 +7,7 @@ public interface ITransactionManager
     Task BeginTransactionAsync(Guid userId);
     Task<TransactionInfo> CommitTransactionAsync(Guid userId);
     Task<TransactionInfo> RollbackTransactionAsync(Guid userId, Exception e);
+    Task<TransactionInfo> RollbackTransactionAsync(Guid userId, string[] messages);
     Task<TransactionInfo> RollbackTransactionAsync(Guid userId, string message);
 
     // Task BeginTransactionAsync(Guid userId, params Type[] contextName);

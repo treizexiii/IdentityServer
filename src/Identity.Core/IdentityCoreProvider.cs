@@ -1,3 +1,4 @@
+using System.Text;
 using Identity.Core.Entities;
 using Identity.Core.Factories;
 using Identity.Core.Managers;
@@ -12,14 +13,21 @@ public static class IdentityCoreProvider
 {
     public static IServiceCollection AddIdentityDomain(this IServiceCollection services)
     {
+        services.AddScoped<ITokenManager, TokenManager>();
+        services.AddScoped<ISecretManager, SecretManager>();
+        services.AddScoped<IUserClaimsPrincipalFactory<User>, UserClaimsPrincipalFactory>();
+
+        return services;
+    }
+    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, string jwtKey)
+    {
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Convert.FromBase64String(Environment.GetEnvironmentVariable("Jwt:Key") ??
-                                         throw new Exception("Jwt:Key is not set")))
+                Encoding.UTF8.GetBytes(jwtKey)),
         };
         services
             .AddAuthentication(options =>
@@ -28,10 +36,12 @@ public static class IdentityCoreProvider
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(options => { options.TokenValidationParameters = tokenValidationParameters; });
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = tokenValidationParameters;
+            });
 
-        services.AddScoped<ITokenManager, TokenManager>();
-        services.AddScoped<IUserClaimsPrincipalFactory<User>, UserClaimsPrincipalFactory>();
+        services.AddAuthorization();
 
         return services;
     }

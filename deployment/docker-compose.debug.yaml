@@ -22,20 +22,6 @@ services:
     networks:
       - identity-network
 
-  identity-database:
-    container_name: identity-database
-    image: "postgres:latest"
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "${DB_PORT}:5432"
-    volumes:
-      - ${DB_VOLUME}:/var/lib/postgresql/data
-    networks:
-      - identity-network
-
 #  identity-database-migrator:
 #    container_name: identity-database-migrator
 #    build:
@@ -51,6 +37,30 @@ services:
 #    tty: true
 #    networks:
 #      - identity-network
+
+  identity-database:
+    container_name: identity-database
+    image: "postgres:latest"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - ${DB_VOLUME}:/var/lib/postgresql/data
+    networks:
+      - identity-network
+
+  identity-redis:
+    container_name: identity-redis
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - ${REDIS_VOLUME}:/data
+      - ${REDIS_CONF}:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}" ]
 
 networks:
   identity-network:

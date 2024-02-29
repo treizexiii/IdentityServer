@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Identity.Core.Entities;
-using Identity.Core.Tools;
 using Identity.Services.Auth;
+using Identity.Services.Factories;
 using Identity.Wrappers.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Tools.TransactionsManager;
@@ -16,6 +16,10 @@ public abstract class IdentityControllerBase(
 {
     protected readonly ILogger<IdentityControllerBase> Logger = logger;
     protected readonly ITransactionManager Transaction = transaction;
+
+    protected string ApiKey =>
+        contextAccessor.HttpContext?.Request.Headers["x-api-key"].ToString()
+        ?? throw new UnauthorizedAccessException("AppCode not found");
 
     protected Guid UserId =>
         Guid.Parse(contextAccessor.HttpContext?.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value
@@ -66,16 +70,15 @@ public abstract class IdentityControllerBase(
         return base.Ok(response);
     }
 
-    protected IActionResult BadRequest(ServiceResult<ProblemsMessage> result)
+    protected IActionResult BadRequest(ServiceResult result)
     {
-        var response = new ApiResponse<ProblemsMessage>
+        var response = new ApiResponse
         {
             Version = "1.0",
             Code = 400,
             Success = false,
             Message = "Bad request",
-            Data = result.Data,
-            Errors = result.Data.Errors.ToArray()
+            Errors = result.Errors?.ToArray() ?? Array.Empty<string>()
         };
 
         return base.BadRequest(response);

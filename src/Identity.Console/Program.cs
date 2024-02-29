@@ -16,40 +16,39 @@ var host = Host.CreateDefaultBuilder()
 
 var client = host.Services.GetRequiredService<IIdentityClient>();
 
-await TestUserOk(client);
-await TestUserFalse(client);
+// await TestUserOk(client);
+// await TestUserFalse(client);
 
 Console.ReadKey();
 
-async Task TestUserOk(IIdentityClient identityHttpClient)
-{
-    const string user = "superadmin";
-    const string password = "superadmin";
+// async Task TestUserOk(IIdentityClient identityHttpClient)
+// {
+//     const string user = "superadmin";
+//     const string password = "superadmin";
+//
+//     var response = await identityHttpClient.LoginAsync(new LoginDto(user, password, null));
+//     if (response.Success)
+//     {
+//         Console.WriteLine("Login Ok");
+//         Console.WriteLine(response.Data?.Token);
+//     }
+//     else
+//     {
+//         Console.WriteLine("Login Error");
+//     }
+// }
 
-    var response = await identityHttpClient.LoginAsync(new LoginDto(user, password, null));
-    if (response.Success)
-    {
-        Console.WriteLine("Login Ok");
-        Console.WriteLine(response.Data?.Token);
-    }
-    else
-    {
-        Console.WriteLine("Login Error");
-    }
-}
-
-async Task TestUserFalse(IIdentityClient identityHttpClient)
-{
-    const string user = "superadmi";
-    const string password = "superadmin";
-
-    var response = await identityHttpClient.LoginAsync(new LoginDto(user, password, null));
-    if (response.Code == 400)
-    {
-        foreach (var error in response.Errors)
-        {
-            Console.WriteLine(error);
-        }
-    }
-
-}
+// async Task TestUserFalse(IIdentityClient identityHttpClient)
+// {
+//     const string user = "superadmi";
+//     const string password = "superadmin";
+//
+//     var response = await identityHttpClient.LoginAsync(new LoginDto(user, password, null));
+//     if (response.Code == 400)
+//     {
+//         foreach (var error in response.Errors)
+//         {
+//             Console.WriteLine(error);
+//         }
+//     }
+// }

@@ -18,12 +18,11 @@ public class User
     public bool TwoFactorEnabled { get; set; }
     public byte[] PasswordHash { get; set; } = Array.Empty<byte>();
     public byte[] PasswordSalt { get; set; } = Array.Empty<byte>();
-    public bool Active { get; set; } = false;
+    public bool Active { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset? ActiveAt { get; set; }
     public DateTimeOffset? DeactivatedAt { get; set; }
-    public virtual UserRole UserRole { get; set; } = new();
+    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public virtual ICollection<UserLogin> UserLogins { get; set; } = new List<UserLogin>();
     public virtual ICollection<UserClaim> UserClaims { get; set; } = new List<UserClaim>();
-    public virtual ICollection<UserApp> UserApps { get; set; } = new List<UserApp>();
 }

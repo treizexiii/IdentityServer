@@ -9,7 +9,7 @@ using Npgsql;
 
 namespace Identity.Persistence;
 
-public static class IdentityPersistanceProvider
+public static class IdentityPersistenceProvider
 {
     public static IServiceCollection AddPersistence(this IServiceCollection services, string connectionString)
     {
@@ -42,6 +42,7 @@ public static class IdentityPersistanceProvider
     {
         services.AddTransient<IUserStore<User>, UsersRepositories>();
         services.AddTransient<ITokenStore<UserToken>, TokenStore>();
+        services.AddTransient<ISecretStore<Secret>, SecretStore>();
         services.AddTransient<IUsersRepository, UsersRepositories>();
         services.AddTransient<IRolesRepository, RolesRepository>();
         services.AddTransient<IAppsRepository, AppsRepository>();

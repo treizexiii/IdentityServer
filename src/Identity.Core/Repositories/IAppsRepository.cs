@@ -6,6 +6,6 @@ public interface IAppsRepository
 {
     Task AddAppAsync(App app);
     Task<App?> GetAppAsync(Guid id);
-    Task<App?> GetAppAsync(string key);
+    Task<App?> GetAppAsync(string apiKey);
     Task<bool> IsExistAsync(string name);
 }

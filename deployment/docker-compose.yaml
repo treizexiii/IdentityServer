@@ -17,6 +17,7 @@ services:
       - DbParams:Password=${DB_PASSWORD}
       - DbParams:Database=${DB_NAME}
       - Jwt:Key=${SECRET_KEY}
+      - Security:SecretHashing:Salt=${SECRET_HASHING_SALT}
     depends_on:
       - identity-database
     networks:
@@ -51,6 +52,16 @@ services:
     tty: true
     networks:
       - identity-network
+
+  identity-redis:
+    container_name: identity-redis
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - ${REDIS_VOLUME}:/data
+      - ${REDIS_CONF}:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}" ]
 
 networks:
   identity-network:

@@ -27,17 +27,22 @@ public class AdminController(
         try
         {
             Logger.LogInformation("Register provider request");
-            var guid = Guid.NewGuid();
-            await Transaction.BeginTransactionAsync(guid);
+            await Transaction.BeginTransactionAsync(UserId);
 
-            var appKey = await adminService.CreateAppAsync(registerAppDto);
-            await authService.RegisterAsync(registerAppDto.ToRegisterRequest(appKey), RolesList.Admin);
+            var result = await adminService.CreateAppAsync(registerAppDto);
+            if (result.Success is false)
+            {
+                await Transaction.RollbackTransactionAsync(UserId, result.Errors!);
+                return BadRequest(result);
+            }
+            await authService.RegisterAsync(registerAppDto.ToRegisterRequest(result.Data!.ApiKey), RolesList.Admin);
 
-            await Transaction.CommitTransactionAsync(guid);
+            await Transaction.CommitTransactionAsync(UserId);
             return Ok("App registered");
         }
         catch (Exception e)
         {
+            await Transaction.RollbackTransactionAsync(UserId, e.Message);
             return Error(e);
         }
     }

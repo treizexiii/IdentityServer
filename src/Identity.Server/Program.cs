@@ -23,7 +23,7 @@ builder.Services.AddCors(setup =>
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddPersistence(IdentityPersistanceProvider.BuildConnectionString(
+builder.Services.AddPersistence(IdentityPersistenceProvider.BuildConnectionString(
     builder.Configuration["DbParams:Host"],
     builder.Configuration["DbParams:Port"],
     builder.Configuration["DbParams:Database"],
@@ -33,9 +33,8 @@ builder.Services.AddPersistence(IdentityPersistanceProvider.BuildConnectionStrin
 builder.Services.AddTransactionManager<IdentityDb>();
 
 builder.Services.AddIdentityDomain();
+builder.Services.AddJwtAuthentication(builder.Configuration["Jwt:Key"]);
 builder.Services.AddIdentityServices();
-
-builder.Services.AddAuthorization();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddSwagger();

@@ -1,9 +1,9 @@
 using Identity.Core.Configuration;
 using Microsoft.Extensions.Configuration;
 
-namespace Identity.Services.Auth;
+namespace Identity.Services.Configuration;
 
-public class AuthOptions(IConfiguration configuration) : IAuthOptions
+internal class AuthOptions(IConfiguration configuration) : IAuthOptions
 {
     public int RefreshTokenExpiration => int.Parse(configuration["Options:RefreshTokenExpiration"]);
     public int AccessTokenExpiration => int.Parse(configuration["Options:AccessTokenExpiration"]);

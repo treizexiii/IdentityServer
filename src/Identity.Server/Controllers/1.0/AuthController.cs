@@ -1,5 +1,4 @@
 using Identity.Core.Entities;
-using Identity.Core.Tools;
 using Identity.Services.Auth;
 using Identity.Wrappers.Dto;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +30,7 @@ public class AuthController(
             if (!result.Success)
             {
                 await Transaction.RollbackTransactionAsync(guid, "Bad request");
-                return BadRequest(result as ServiceResult<ProblemsMessage>);
+                return BadRequest(result);
             }
 
             await Transaction.CommitTransactionAsync(guid);
@@ -54,19 +53,17 @@ public class AuthController(
             Logger.LogInformation("Login request");
             await Transaction.BeginTransactionAsync(guid);
 
-            var result = await authService.LoginAsync(loginDto);
+            var result = await authService.LoginAsync(loginDto, ApiKey);
             if (!result.Success)
             {
                 await Transaction.RollbackTransactionAsync(guid, "Bad request");
-                return BadRequest(result as ServiceResult<ProblemsMessage>);
+                return BadRequest(result);
             }
 
             await Transaction.CommitTransactionAsync(guid);
 
-            var accessToken = result as ServiceResult<JwtToken>;
-
-            AppendCookie(TokenTypeList.RefreshToken, accessToken.Data.RefreshToken);
-            return Ok(accessToken.Data);
+            AppendCookie(TokenTypeList.RefreshToken, result.Data!.RefreshToken);
+            return Ok(result.Data);
         }
         catch (Exception e)
         {
@@ -82,25 +79,22 @@ public class AuthController(
         try
         {
             Logger.LogInformation("Refresh request");
-            var guid = Guid.NewGuid();
             await Transaction.BeginTransactionAsync(UserId);
 
             var refreshToken = Request.Cookies[TokenTypeList.RefreshToken];
             if (string.IsNullOrEmpty(refreshToken)) throw new Exception("Invalid refresh token");
 
-            var result = await authService.RefreshAsync(refreshToken);
+            var result = await authService.RefreshAsync(refreshToken, ApiKey);
             if (!result.Success)
             {
                 await Transaction.RollbackTransactionAsync(UserId, "Bad request");
-                return BadRequest(result as ServiceResult<ProblemsMessage>);
+                return BadRequest(result);
             }
-
-            var accessToken = result as ServiceResult<JwtToken>;
 
             await Transaction.CommitTransactionAsync(UserId);
 
-            AppendCookie(TokenTypeList.RefreshToken, accessToken.Data.RefreshToken);
-            return Ok(accessToken.Data);
+            AppendCookie(TokenTypeList.RefreshToken, result.Data!.RefreshToken);
+            return Ok(result.Data);
         }
         catch (Exception e)
         {
@@ -120,11 +114,11 @@ public class AuthController(
             var refreshToken = Request.Cookies[TokenTypeList.RefreshToken];
             if (string.IsNullOrEmpty(refreshToken)) throw new Exception("Invalid refresh token");
 
-            var result = await authService.LogoutAsync(refreshToken);
+            var result = await authService.LogoutAsync(refreshToken, ApiKey);
             if (!result.Success)
             {
                 await Transaction.RollbackTransactionAsync(UserId, "Bad request");
-                return BadRequest(result as ServiceResult<ProblemsMessage>);
+                return BadRequest(result);
             }
 
             await Transaction.CommitTransactionAsync(UserId);

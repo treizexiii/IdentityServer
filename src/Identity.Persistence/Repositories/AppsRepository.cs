@@ -17,9 +17,15 @@ public class AppsRepository(IdentityDb context) : IAppsRepository
         return await context.Apps.Where(a => a.Id == id).FirstOrDefaultAsync();
     }
 
-    public async Task<App?> GetAppAsync(string key)
+    public async Task<App?> GetAppAsync(string apiKey)
     {
-        return await context.Apps.Where(a => a.Key == key).FirstOrDefaultAsync();
+        // try to get app without saving it to the context
+        var app = context.Apps.Local.FirstOrDefault(a => a.ApiKey == apiKey);
+        if (app is not null)
+        {
+            return app;
+        }
+        return await context.Apps.Where(a => a.ApiKey == apiKey).FirstOrDefaultAsync();
     }
 
     public async Task<bool> IsExistAsync(string name)

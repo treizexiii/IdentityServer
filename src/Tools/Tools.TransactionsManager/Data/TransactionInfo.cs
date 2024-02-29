@@ -36,8 +36,12 @@ public class TransactionInfo
         Message = message;
     }
 
-    public void SetStatus(TransactionStatus status)
+    public void SetStatus(TransactionStatus status, string? message = null)
     {
+        if (message is not null)
+        {
+            status.Message = message;
+        }
         StatusHistory.Add(status);
     }
 

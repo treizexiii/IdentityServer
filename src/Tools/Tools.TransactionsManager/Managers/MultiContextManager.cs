@@ -28,6 +28,12 @@ public class MultiContextTransactionManager(
         return Rollback(userId, e, currentContext);
     }
 
+    public Task<TransactionInfo> RollbackTransactionAsync(Guid userId, string[] messages)
+    {
+        var currentContext = contexts.ToList();
+        return Rollback(userId, string.Join(",", messages), currentContext);
+    }
+
     public Task<TransactionInfo> RollbackTransactionAsync(Guid userId, string message)
     {
         var currentContext = contexts.ToList();

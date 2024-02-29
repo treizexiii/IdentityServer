@@ -13,18 +13,19 @@ public class JwtTokenBuilder
     private readonly Dictionary<string, string> _customClaims = new();
     private readonly string _issuer;
     private readonly byte[] _secretKey;
-    private string? _email;
+    private readonly string _algorithm;
 
     private string? _id;
-    private string? _provider;
     private string? _role;
     private string? _username;
+    private string? _email;
 
-    public JwtTokenBuilder(string issuer, string audience, string secretKey)
+    public JwtTokenBuilder(string issuer, string audience, string secretKey, string algorithm)
     {
         _issuer = issuer;
         _audience = audience;
         _secretKey = Encoding.UTF8.GetBytes(secretKey);
+        _algorithm = Algorithm.GetAlgorithm(algorithm);
     }
 
     public JwtTokenBuilder AddUser(User user)
@@ -43,11 +44,6 @@ public class JwtTokenBuilder
         return this;
     }
 
-    public void AddProvider(string provider)
-    {
-        _provider = provider;
-    }
-
     public void AddCustomClaim(string type, string value)
     {
         _customClaims.Add(type, value);
@@ -56,7 +52,7 @@ public class JwtTokenBuilder
     public string BuildJwtToken(int expireMinutes = 30)
     {
         var key = new SymmetricSecurityKey(_secretKey);
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+        var credentials = new SigningCredentials(key, _algorithm);
 
         var tokenDescriptor = new SecurityTokenDescriptor();
         var claims = new List<Claim>();
@@ -70,8 +66,6 @@ public class JwtTokenBuilder
             claims.Add(new Claim(ClaimTypes.Email, _email));
         if (!string.IsNullOrEmpty(_role))
             claims.Add(new Claim(ClaimTypes.Role, _role));
-        if (!string.IsNullOrEmpty(_provider))
-            claims.Add(new Claim(ClaimTypes.Spn, _provider));
 
         claims.Add(new Claim(ClaimTypes.Expiration, expire.ToUnixTimeSeconds().ToString()));
         claims.AddRange(_customClaims.Select(claim => new Claim(claim.Key, claim.Value)));
@@ -123,7 +117,7 @@ public class JwtTokenBuilder
 
         // control token signature
         var key = new SymmetricSecurityKey(_secretKey);
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+        var credentials = new SigningCredentials(key, _algorithm);
         var validationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -160,4 +154,24 @@ public static class RawClaimsType
     public const string Email = "email";
     public const string Role = "role";
     public const string Expiration = "exp";
+}
+
+public static class Algorithm
+{
+    public const string HmacSha256 = SecurityAlgorithms.HmacSha256;
+    public const string HmacSha512 = SecurityAlgorithms.HmacSha512;
+    public const string Aes256 = SecurityAlgorithms.Aes256Encryption;
+    public const string Rsa = SecurityAlgorithms.RsaSha256;
+
+    public static string GetAlgorithm(string algorithm)
+    {
+        return algorithm switch
+        {
+            "HS256" => HmacSha256,
+            "HS512" => HmacSha512,
+            "A256" => Aes256,
+            "RS256" => Rsa,
+            _ => throw new ArgumentOutOfRangeException(nameof(algorithm), algorithm, null)
+        };
+    }
 }

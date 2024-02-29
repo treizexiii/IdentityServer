@@ -1,30 +1,53 @@
 using System.Data;
+using Identity.Core.Configuration;
 using Identity.Core.Entities;
+using Identity.Core.Managers;
 using Identity.Core.Repositories;
+using Identity.Core.Tools;
+using Identity.Services.Factories;
 using Identity.Wrappers.Dto;
 
 namespace Identity.Services.Admin;
 
-public interface IAdminService
+internal class AdminService(IAppsRepository appsRepository, ISecretManager secretManager, ISecurityProvider securityProvider) : IAdminService
 {
-    Task<string> CreateAppAsync(RegisterAppDto registerAppDto);
-}
+    private const string Algorithm = Core.Tools.Algorithm.HmacSha256;
 
-public class AdminService(IAppsRepository appsRepository) : IAdminService
-{
-    public async Task<string> CreateAppAsync(RegisterAppDto registerAppDto)
+    public async Task<ServiceResult<AppDto>> CreateAppAsync(RegisterAppDto registerAppDto)
     {
-        var normalizeName = registerAppDto.AppName.Normalize();
-        var app = new App();
-        app.Id = Guid.NewGuid();
-        app.Key = app.Id.ToString().Normalize();
-        app.Name = registerAppDto.AppName;
-        app.NormalizedName = normalizeName;
+        try
+        {
+            var utc = DateTime.UtcNow;
 
-        if (await appsRepository.IsExistAsync(app.NormalizedName)) throw new DataException("App already exists");
+            var normalizeName = registerAppDto.AppName.Normalize();
+            if (await appsRepository.IsExistAsync(normalizeName))
+            {
+                throw new DataException("App already exists");
+            }
 
-        await appsRepository.AddAppAsync(app);
+            var app = new App
+            {
+                Id = Guid.NewGuid(),
+                ApiKey = Guid.NewGuid().ToString(),
+                Name = registerAppDto.AppName,
+                NormalizedName = normalizeName,
+                Description = registerAppDto.Description,
+                CreatedAt = utc
+            };
 
-        return app.Key;
+            var rawSecret = Algorithm + ":" + Guid.NewGuid();
+            var hashedSecret = DataHasher.Hash(rawSecret, securityProvider.GetSecretHashingSalt());
+            await secretManager.GenerateSecretAsync(app.Id, SecretTypes.AppKey, hashedSecret.hash);
+
+            await appsRepository.AddAppAsync(app);
+
+            var registeredApp = new AppDto(app.Id, app.Name, app.ApiKey, rawSecret);
+
+            return ServiceResultFactory<AppDto>.Ok(registeredApp);
+        }
+        catch (Exception e)
+        {
+            return ServiceResultFactory<AppDto>.Fail(e.Message, null);
+        }
     }
 }

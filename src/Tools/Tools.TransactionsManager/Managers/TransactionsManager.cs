@@ -39,7 +39,8 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
 
     public async Task<TransactionInfo> CommitTransactionAsync(Guid userId)
     {
-        if (_transaction is null) throw new ArgumentException($"Transaction for user {userId} not found");
+        if (_transaction is null)
+            throw new ArgumentException($"Transaction for user {userId} not found");
 
         TransactionInfo currentInfo;
         try
@@ -57,28 +58,19 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
 
             _transaction.SetStatus(TransactionStatusEnum.Committed);
             currentInfo = _transaction;
-        }
-        catch (Exception e)
-        {
-            logger.LogError("Error while commit transaction: {Message}", e.Message);
-            foreach (var transaction in _transaction.Context)
-            {
-                await transaction.Value.RollbackAsync();
-                logger.LogInformation("Transaction rollback for context {ContextName}, {TransactionId}",
-                    transaction.Key, transaction.Value.TransactionId);
-            }
 
-            _transaction.SetMessage(e.Message);
-            _transaction.SetStatus(TransactionStatusEnum.Failed);
-            currentInfo = _transaction;
-        }
-        finally
-        {
             foreach (var transaction in _transaction.Context) await transaction.Value.DisposeAsync();
 
             _transaction = null;
 
             logger.LogInformation("Transactions end for user {UserId}", userId);
+        }
+        catch (Exception e)
+        {
+            logger.LogError("Error while commit transaction: {Message}", e.Message);
+            _transaction.SetMessage(e.Message);
+            _transaction.SetStatus(TransactionStatusEnum.Failed, e.Message);
+            throw;
         }
 
         return currentInfo;
@@ -124,6 +116,12 @@ public class TransactionManager(ILogger<TransactionManager> logger, IDbContext c
         }
 
         return currentInfo;
+    }
+
+    public async Task<TransactionInfo> RollbackTransactionAsync(Guid userId, string[] messages)
+    {
+        var message = string.Join(",", messages);
+        return await RollbackTransactionAsync(userId, message);
     }
 
     public async Task<TransactionInfo> RollbackTransactionAsync(Guid userId, string message)

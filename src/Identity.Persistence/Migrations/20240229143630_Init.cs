@@ -18,10 +18,10 @@ namespace Identity.Persistence.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    key = table.Column<string>(type: "text", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     normalizedname = table.Column<string>(type: "text", nullable: false),
                     description = table.Column<string>(type: "text", nullable: false),
+                    apikey = table.Column<string>(type: "text", nullable: false),
                     createdat = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     deletedat = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
@@ -43,6 +43,23 @@ namespace Identity.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_roles", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "secrets",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    objectid = table.Column<Guid>(type: "uuid", nullable: false),
+                    secrettype = table.Column<string>(type: "text", nullable: false),
+                    deletedat = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    value = table.Column<byte[]>(type: "bytea", nullable: false),
+                    salt = table.Column<byte[]>(type: "bytea", nullable: true),
+                    createdat = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_secrets", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -97,32 +114,6 @@ namespace Identity.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "userapps",
-                columns: table => new
-                {
-                    userid = table.Column<Guid>(type: "uuid", nullable: false),
-                    appid = table.Column<Guid>(type: "uuid", nullable: false),
-                    createdat = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    deletedat = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_userapps", x => new { x.userid, x.appid });
-                    table.ForeignKey(
-                        name: "fk_userapps_apps_appid",
-                        column: x => x.appid,
-                        principalTable: "apps",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_userapps_users_userid",
-                        column: x => x.userid,
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "userclaims",
                 columns: table => new
                 {
@@ -171,6 +162,7 @@ namespace Identity.Persistence.Migrations
                 {
                     roleid = table.Column<Guid>(type: "uuid", nullable: false),
                     userid = table.Column<Guid>(type: "uuid", nullable: false),
+                    appid = table.Column<Guid>(type: "uuid", nullable: false),
                     createdat = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -224,9 +216,9 @@ namespace Identity.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "ix_apps_key",
+                name: "ix_apps_apikey",
                 table: "apps",
-                column: "key",
+                column: "apikey",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -253,9 +245,10 @@ namespace Identity.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_userapps_appid",
-                table: "userapps",
-                column: "appid");
+                name: "ix_secrets_objectid_secrettype_deletedat",
+                table: "secrets",
+                columns: new[] { "objectid", "secrettype", "deletedat" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_userclaims_userid",
@@ -271,12 +264,6 @@ namespace Identity.Persistence.Migrations
                 name: "ix_userroles_roleid",
                 table: "userroles",
                 column: "roleid");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_userroles_userid",
-                table: "userroles",
-                column: "userid",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_users_normalizedusername",
@@ -300,10 +287,13 @@ namespace Identity.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "apps");
+
+            migrationBuilder.DropTable(
                 name: "roleclaims");
 
             migrationBuilder.DropTable(
-                name: "userapps");
+                name: "secrets");
 
             migrationBuilder.DropTable(
                 name: "userclaims");
@@ -316,9 +306,6 @@ namespace Identity.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "usertokens");
-
-            migrationBuilder.DropTable(
-                name: "apps");
 
             migrationBuilder.DropTable(
                 name: "roles");

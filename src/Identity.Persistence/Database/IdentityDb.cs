@@ -1,5 +1,6 @@
 using Identity.Core.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Storage;
 using Tools.TransactionsManager;
 
@@ -19,8 +20,8 @@ public class IdentityDb : DbContext, IDbContext
     public DbSet<UserLogin> UserLogins { get; set; } = null!;
     public DbSet<UserToken> UserTokens { get; set; } = null!;
     public DbSet<UserClaim> UserClaims { get; set; } = null!;
-    public DbSet<UserApp> UserApps { get; set; } = null!;
     public DbSet<App> Apps { get; set; } = null!;
+    public DbSet<Secret> Secrets { get; set; } = null!;
 
     public async Task<IDbContextTransaction> BeginTransactionAsync()
     {
@@ -47,9 +48,7 @@ public class IdentityDb : DbContext, IDbContext
             b.HasIndex(r => r.NormalizedName).IsUnique();
             b.HasData(RolesList.GetRoles());
         });
-        builder.Entity<RoleClaims>(b => { });
         builder.Entity<UserRole>(b => { b.HasKey(ur => new { ur.UserId, ur.RoleId }); });
-        builder.Entity<UserClaim>(b => { });
         builder.Entity<UserToken>(b =>
         {
             b.HasIndex(ut => new { ut.UserId, ut.LoginProvider, ut.Name, ut.DeletedAt });
@@ -58,10 +57,18 @@ public class IdentityDb : DbContext, IDbContext
 
         builder.Entity<App>(b =>
         {
-            b.HasIndex(a => a.Key).IsUnique();
+            b.HasIndex(a => a.ApiKey).IsUnique();
             b.HasIndex(a => a.NormalizedName).IsUnique();
         });
-        builder.Entity<UserApp>(b => { b.HasKey(ua => new { ua.UserId, ua.AppId }); });
+
+        builder.Entity<Secret>(b =>
+        {
+            b.HasIndex(s => new { UserId = s.ObjectId, s.SecretType, s.DeletedAt }).IsUnique();
+        });
+
+        // TODO: check what to do with these
+        builder.Entity<RoleClaims>(b => { });
+        builder.Entity<UserClaim>(b => { });
 
         base.OnModelCreating(builder);
     }

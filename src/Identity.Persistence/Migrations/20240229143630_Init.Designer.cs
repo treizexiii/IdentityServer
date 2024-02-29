@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Identity.Persistence.Migrations
 {
     [DbContext(typeof(IdentityDb))]
-    [Migration("20240222220612_Init")]
+    [Migration("20240229143630_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -35,6 +35,11 @@ namespace Identity.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("ApiKey")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("apikey");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("createdat");
@@ -47,11 +52,6 @@ namespace Identity.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("description");
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("key");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -66,9 +66,9 @@ namespace Identity.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_apps");
 
-                    b.HasIndex("Key")
+                    b.HasIndex("ApiKey")
                         .IsUnique()
-                        .HasDatabaseName("ix_apps_key");
+                        .HasDatabaseName("ix_apps_apikey");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
@@ -177,6 +177,49 @@ namespace Identity.Persistence.Migrations
                     b.ToTable("roleclaims", (string)null);
                 });
 
+            modelBuilder.Entity("Identity.Core.Entities.Secret", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<Guid>("ObjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("objectid");
+
+                    b.Property<byte[]>("Salt")
+                        .HasColumnType("bytea")
+                        .HasColumnName("salt");
+
+                    b.Property<string>("SecretType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("secrettype");
+
+                    b.Property<byte[]>("Value")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_secrets");
+
+                    b.HasIndex("ObjectId", "SecretType", "DeletedAt")
+                        .IsUnique()
+                        .HasDatabaseName("ix_secrets_objectid_secrettype_deletedat");
+
+                    b.ToTable("secrets", (string)null);
+                });
+
             modelBuilder.Entity("Identity.Core.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -276,33 +319,6 @@ namespace Identity.Persistence.Migrations
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("Identity.Core.Entities.UserApp", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("userid");
-
-                    b.Property<Guid>("AppId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("appid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("createdat");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deletedat");
-
-                    b.HasKey("UserId", "AppId")
-                        .HasName("pk_userapps");
-
-                    b.HasIndex("AppId")
-                        .HasDatabaseName("ix_userapps_appid");
-
-                    b.ToTable("userapps", (string)null);
-                });
-
             modelBuilder.Entity("Identity.Core.Entities.UserClaim", b =>
                 {
                     b.Property<Guid>("Id")
@@ -383,6 +399,10 @@ namespace Identity.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("roleid");
 
+                    b.Property<Guid>("AppId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("appid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("createdat");
@@ -392,10 +412,6 @@ namespace Identity.Persistence.Migrations
 
                     b.HasIndex("RoleId")
                         .HasDatabaseName("ix_userroles_roleid");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_userroles_userid");
 
                     b.ToTable("userroles", (string)null);
                 });
@@ -455,25 +471,6 @@ namespace Identity.Persistence.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Identity.Core.Entities.UserApp", b =>
-                {
-                    b.HasOne("Identity.Core.Entities.App", "App")
-                        .WithMany()
-                        .HasForeignKey("AppId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_userapps_apps_appid");
-
-                    b.HasOne("Identity.Core.Entities.User", null)
-                        .WithMany("UserApps")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_userapps_users_userid");
-
-                    b.Navigation("App");
-                });
-
             modelBuilder.Entity("Identity.Core.Entities.UserClaim", b =>
                 {
                     b.HasOne("Identity.Core.Entities.User", "User")
@@ -508,8 +505,8 @@ namespace Identity.Persistence.Migrations
                         .HasConstraintName("fk_userroles_roles_roleid");
 
                     b.HasOne("Identity.Core.Entities.User", "User")
-                        .WithOne("UserRole")
-                        .HasForeignKey("Identity.Core.Entities.UserRole", "UserId")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_userroles_users_userid");
@@ -538,14 +535,11 @@ namespace Identity.Persistence.Migrations
 
             modelBuilder.Entity("Identity.Core.Entities.User", b =>
                 {
-                    b.Navigation("UserApps");
-
                     b.Navigation("UserClaims");
 
                     b.Navigation("UserLogins");
 
-                    b.Navigation("UserRole")
-                        .IsRequired();
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

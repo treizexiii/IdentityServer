@@ -4,6 +4,7 @@ public class TransactionStatus
 {
     public string Status { get; set; } = string.Empty;
     public DateTime StartedAt { get; set; }
+    public string Message { get; set; } = string.Empty;
 }
 
 internal static class TransactionStatusEnum
