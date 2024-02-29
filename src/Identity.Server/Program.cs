@@ -1,3 +1,4 @@
+using System.Reflection;
 using Identity.Core;
 using Identity.Persistence;
 using Identity.Persistence.Database;
@@ -5,52 +6,76 @@ using Identity.Server.Tools;
 using Identity.Services;
 using Tools.TransactionsManager;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace Identity.Server;
 
-// Add services to the container.
-builder.Services.AddRouting(o => o.LowercaseUrls = true);
-builder.Services.AddControllers();
-builder.Services.AddCors(setup =>
+internal static class Program
 {
-    setup.AddPolicy("*", policyBuilder =>
+    public static void Main(string[] args)
     {
-        policyBuilder
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
+        var appName = Assembly.GetExecutingAssembly().GetName().Name;
 
-builder.Services.AddHttpContextAccessor();
+        var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddPersistence(IdentityPersistenceProvider.BuildConnectionString(
-    builder.Configuration["DbParams:Host"],
-    builder.Configuration["DbParams:Port"],
-    builder.Configuration["DbParams:Database"],
-    builder.Configuration["DbParams:User"],
-    builder.Configuration["DbParams:Password"]
-));
-builder.Services.AddTransactionManager<IdentityDb>();
+        Console.WriteLine($"Executing {appName}...");
+        Console.WriteLine();
 
-builder.Services.AddIdentityDomain();
-builder.Services.AddJwtAuthentication(builder.Configuration["Jwt:Key"]);
-builder.Services.AddIdentityServices();
+        LoadingServices(builder);
+        var app = builder.Build();
+        ConfigureMiddleware(app);
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddSwagger();
+        Console.WriteLine("Starting...");
+        app.Run();
+    }
 
-var app = builder.Build();
+    private static void LoadingServices(IHostApplicationBuilder appBuilder)
+    {
+        Console.WriteLine("Loading Route and Controllers...");
+        appBuilder.Services.AddRouting(o => o.LowercaseUrls = true);
+        appBuilder.Services.AddControllers();
+        appBuilder.Services.AddCors(setup =>
+        {
+            setup.AddPolicy("*", policyBuilder =>
+            {
+                policyBuilder
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+        appBuilder.Services.AddHttpContextAccessor();
 
-// Configure the HTTP request pipeline.
-app.UseCors("*");
-app.UseRouting();
-app.MapControllers();
+        Console.WriteLine("Loading Persistence...");
+        appBuilder.Services.AddPersistence(IdentityPersistenceProvider.BuildConnectionString(
+            appBuilder.Configuration["DbParams:Host"],
+            appBuilder.Configuration["DbParams:Port"],
+            appBuilder.Configuration["DbParams:Database"],
+            appBuilder.Configuration["DbParams:User"],
+            appBuilder.Configuration["DbParams:Password"]
+        ));
+        appBuilder.Services.AddTransactionManager<IdentityDb>();
 
-app.UseSwaggerInterface();
+        Console.WriteLine("Loading Services...");
+        appBuilder.Services.AddIdentityDomain();
+        appBuilder.Services.AddJwtAuthentication(appBuilder.Configuration["Jwt:Key"]);
+        appBuilder.Services.AddIdentityServices();
 
-app.UseAuthentication();
-app.UseAuthorization();
+        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+        appBuilder.Services.AddSwagger();
+    }
 
-app.UseHttpsRedirection();
+    private static void ConfigureMiddleware(WebApplication webApplication)
+    {
+        // Configure the HTTP request pipeline.
+        Console.WriteLine("Configuring HTTP request pipeline...");
+        webApplication.UseCors("*");
+        webApplication.UseRouting();
+        webApplication.MapControllers();
 
-app.Run();
+        webApplication.UseSwaggerInterface();
+
+        webApplication.UseAuthentication();
+        webApplication.UseAuthorization();
+
+        webApplication.UseHttpsRedirection();
+    }
+}
