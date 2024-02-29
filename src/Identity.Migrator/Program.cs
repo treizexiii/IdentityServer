@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using Identity.Core;
+using Identity.Core.Entities;
 using Identity.Persistence;
 using Identity.Persistence.Database;
 using Identity.Services;
@@ -24,15 +25,16 @@ internal class Program
         DotEnv.Load(".env");
 
         Console.WriteLine("Building host...");
-        var host = BuildHost();
+        var host = BuildHost(args);
 
-        Console.WriteLine("Executing command...");
-        await Execute(args, host);
+        Console.WriteLine("Starting migrator...");
+        var app = new Application(host);
+        await app.RunAsync();
     }
 
-    private static IHost BuildHost()
+    private static IHost BuildHost(string[] args)
     {
-        var host = Host.CreateDefaultBuilder()
+        var host = Host.CreateDefaultBuilder(args)
             .ConfigureHostConfiguration(builder =>
             {
                 builder.AddJsonFile("appsettings.json", true);
@@ -57,86 +59,5 @@ internal class Program
             .Build();
 
         return host;
-    }
-
-    private static async Task Execute(string[] args, IHost host)
-    {
-        var command = args[0];
-        var logger = host.Services.GetRequiredService<ILogger<Program>>();
-
-        logger.LogInformation("Environment: {Env}", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
-        logger.LogInformation("Databases host: {Host}", Environment.GetEnvironmentVariable("DB_HOST"));
-        logger.LogInformation("Databases port: {Port}", Environment.GetEnvironmentVariable("DB_PORT"));
-        logger.LogInformation("Databases name: {Name}", Environment.GetEnvironmentVariable("DB_NAME"));
-
-        switch (command)
-        {
-            case "migrate":
-                Migrate(host.Services.GetRequiredService<IdentityDb>());
-                break;
-            case "create":
-                Create(host.Services.GetRequiredService<IdentityDb>());
-                break;
-            case "seed":
-                await Seed(host.Services);
-                break;
-            case "drop":
-                logger.LogWarning("Drop database not implemented");
-                break;
-            default:
-                throw new Exception("Invalid command");
-        }
-    }
-
-    private static void Migrate(DbContext context)
-    {
-        try
-        {
-            if (context.Database.GetPendingMigrations().Any())
-            {
-                context.Database.Migrate();
-                Console.WriteLine("Migrations applied");
-            }
-            else
-            {
-                Console.WriteLine("No pending migrations");
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
-    }
-
-    private static void Create(DbContext context)
-    {
-        try
-        {
-            context.Database.EnsureCreated();
-            Console.WriteLine("Database created");
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
-    }
-
-    private static async Task Seed(IServiceProvider provider)
-    {
-        try
-        {
-            var transactionManager = provider.GetRequiredService<ITransactionManager>();
-            var logger = provider.GetRequiredService<ILogger<SuperAdminBuilder>>();
-            var adminService = provider.GetRequiredService<IAdminService>();
-            var authService = provider.GetRequiredService<IAuthService>();
-            var builder = new SuperAdminBuilder(transactionManager, logger, adminService, authService);
-            await builder.Create();
-
-            Console.WriteLine("Database seeded");
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
     }
 }
