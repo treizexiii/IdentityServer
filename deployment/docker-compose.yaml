@@ -16,7 +16,6 @@ services:
       - DbParams:User=${DB_USER}
       - DbParams:Password=${DB_PASSWORD}
       - DbParams:Database=${DB_NAME}
-      - Jwt:Key=${SECRET_KEY}
       - Security:SecretHashing:Salt=${SECRET_HASHING_SALT}
     depends_on:
       - identity-database
@@ -50,6 +49,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
     tty: true
+    volumes:
+      - ${SU_FILE}:/app/datas/su.json
     networks:
       - identity-network
 
