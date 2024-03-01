@@ -54,6 +54,23 @@ public class AppsRepository(IdentityDb context) : IAppsRepository
         return await context.Apps.AnyAsync(a => a.NormalizedName == name);
     }
 
+    public async Task<IEnumerable<User>> GetAppUsersAsync(Guid id, string role)
+    {
+        if (role is RolesList.All)
+        {
+            return await context.Users
+                .Include(u => u.UserRoles
+                    .Where(ur => ur.AppId == id))
+                .Where(u => u.UserRoles.Any(ur => ur.AppId == id))
+                .ToListAsync();
+        }
+        return await context.Users
+            .Include(u => u.UserRoles
+                .Where(ur => ur.AppId == id && ur.Role.Name == role))
+            .Where(u => u.UserRoles.Any(ur => ur.AppId == id))
+            .ToListAsync();
+    }
+
     public Task UpdateAppAsync(App app)
     {
         context.Apps.Update(app);

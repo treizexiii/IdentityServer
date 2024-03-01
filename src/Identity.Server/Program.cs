@@ -1,4 +1,5 @@
 using System.Reflection;
+using Asp.Versioning;
 using Identity.Core;
 using Identity.Persistence;
 using Identity.Persistence.Database;
@@ -29,6 +30,12 @@ internal static class Program
 
     private static void LoadingServices(IHostApplicationBuilder appBuilder)
     {
+        Console.WriteLine("Controlling version...");
+        appBuilder.Services.AddApiVersioning([
+            new ApiVersion(1, 0)
+        ]);
+
+
         Console.WriteLine("Loading Route and Controllers...");
         appBuilder.Services.AddRouting(o => o.LowercaseUrls = true);
         appBuilder.Services.AddControllers();

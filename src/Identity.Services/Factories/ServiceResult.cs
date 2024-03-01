@@ -31,6 +31,18 @@ internal static class ServiceResultFactory
     {
         return new ServiceResult { Success = false, Errors = errors };
     }
+
+    public static ServiceResult NotFound()
+    {
+        return new ServiceResult
+            { Success = false, StatusCode = 404, Errors = ["Not found"] };
+    }
+
+    public static ServiceResult Forbid()
+    {
+        return new ServiceResult
+            { Success = false, StatusCode = 403, Errors = ["Forbidden"] };
+    }
 }
 
 internal static class ServiceResultFactory<T>

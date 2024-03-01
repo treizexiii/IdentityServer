@@ -129,4 +129,35 @@ internal class AdminService(
             return ServiceResultFactory<AppDto>.Fail(e.Message, 400, null);
         }
     }
+
+    public async Task<ServiceResult<IEnumerable<AppUserDto>>> GetAppUsersAsync(Guid owner, Guid id, string role)
+    {
+        try
+        {
+            var app = await appsRepository.GetAppAsync(id);
+            if (app is null)
+            {
+                return ServiceResultFactory<IEnumerable<AppUserDto>>.NotFound();
+            }
+            if (app.Owner != owner)
+            {
+                return ServiceResultFactory<IEnumerable<AppUserDto>>.Forbid();
+            }
+
+            var users = await appsRepository.GetAppUsersAsync(id, role);
+            var list = new List<AppUserDto>();
+
+            foreach (var user in users)
+            {
+                var dto = new AppUserDtoBuilder(user).Build();
+                list.Add(dto);
+            }
+
+            return ServiceResultFactory<IEnumerable<AppUserDto>>.Ok(list);
+        }
+        catch (Exception e)
+        {
+            return ServiceResultFactory<IEnumerable<AppUserDto>>.Fail(e.Message, 400, null);
+        }
+    }
 }

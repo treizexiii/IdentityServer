@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Identity.Core.Entities;
 using Identity.Services.Admin;
 using Identity.Wrappers.Dto;
@@ -8,10 +9,11 @@ using Tools.TransactionsManager;
 namespace Identity.Server.Controllers._1._0;
 
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json")]
 public class AppsController(
-    ILogger<IdentityControllerBase> logger,
+    ILogger<AppsController> logger,
     ITransactionManager transaction,
     IHttpContextAccessor contextAccessor,
     IAdminService adminService)
