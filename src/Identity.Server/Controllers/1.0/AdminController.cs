@@ -21,7 +21,7 @@ public class AdminController(
 {
     [HttpPost]
     [Route("register-app")]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = RolesList.SuperAdmin)]
     public async Task<IActionResult> RegisterAppAsync(RegisterAppDto registerAppDto)
     {
         try

@@ -8,6 +8,8 @@ public class App
     public string Description { get; set; } = string.Empty;
     public string ApiKey { get; set; } = "00000000-0000-0000-0000-000000000000";
     public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid Owner { get; set; }
+    public virtual AppConfiguration Configuration { get; set; } = new();
 }

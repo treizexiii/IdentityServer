@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Identity.Core.Entities;
-using Identity.Services.Auth;
 using Identity.Services.Factories;
 using Identity.Wrappers.Messages;
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +42,19 @@ public abstract class IdentityControllerBase(
         });
     }
 
+    protected IActionResult Ok(string message = "OK")
+    {
+        var response = new ApiResponse
+        {
+            Version = "1.0",
+            Code = 200,2aQ23WA457ETYS6
+            Success = true,
+            Message = message
+        };
+
+        return base.Ok(response);
+    }
+
     protected IActionResult Ok<T>(T data)
     {
         var response = new ApiResponse<T>
@@ -57,31 +69,24 @@ public abstract class IdentityControllerBase(
         return base.Ok(response);
     }
 
-    protected IActionResult Ok(string message)
-    {
-        var response = new ApiResponse
-        {
-            Version = "1.0",
-            Code = 200,
-            Success = true,
-            Message = "OK"
-        };
-
-        return base.Ok(response);
-    }
-
     protected IActionResult BadRequest(ServiceResult result)
     {
         var response = new ApiResponse
         {
             Version = "1.0",
-            Code = 400,
+            Code = result.StatusCode,
             Success = false,
             Message = "Bad request",
             Errors = result.Errors?.ToArray() ?? Array.Empty<string>()
         };
 
-        return base.BadRequest(response);
+        return result.StatusCode switch
+        {
+            401 => base.Unauthorized(response),
+            403 => base.Forbid(),
+            404 => base.NotFound(response),
+            _ => base.BadRequest(response)
+        };
     }
 
     protected IActionResult Error(Exception e)

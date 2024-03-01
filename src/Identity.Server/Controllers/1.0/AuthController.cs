@@ -18,6 +18,7 @@ public class AuthController(
 {
     [HttpPost]
     [Route("register")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> RegisterAsync(RegisterDto registerDto)
     {
         var guid = Guid.NewGuid();
@@ -45,6 +46,7 @@ public class AuthController(
 
     [HttpPost]
     [Route("login")]
+    [ProducesResponseType(typeof(JwtToken), StatusCodes.Status200OK)]
     public async Task<IActionResult> LoginAsync(LoginDto loginDto)
     {
         var guid = Guid.NewGuid();
@@ -74,6 +76,7 @@ public class AuthController(
 
     [HttpPost]
     [Route("refresh")]
+    [ProducesResponseType(typeof(JwtToken), StatusCodes.Status200OK)]
     public async Task<IActionResult> RefreshTokenAsync()
     {
         try
@@ -104,6 +107,7 @@ public class AuthController(
 
     [HttpPost]
     [Route("logout")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> LogoutAsync()
     {
         try

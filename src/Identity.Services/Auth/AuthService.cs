@@ -26,18 +26,19 @@ internal class AuthService(
             .ControlEmail(registerDto.Email)
             .ControlPassword(registerDto.Password)
             .Execute();
-        if (errors != null) return ServiceResultFactory.Fail(errors);
+        if (errors != null)
+            return ServiceResultFactory.Fail(errors, 400);
 
         if (await userRepository.IsExistAsync(registerDto.Email))
-            return ServiceResultFactory.Fail("User already exists");
+            return ServiceResultFactory.Fail("User already exists", 400);
 
         var app = await appsRepository.GetAppAsync(registerDto.AppKey);
         if (app == null)
-            return ServiceResultFactory.Fail("Provider not found");
+            return ServiceResultFactory.Fail("Provider not found", 400);
 
         var role = await userRepository.GetRoleAsync(roleName);
         if (role == null)
-            return ServiceResultFactory.Fail("Role not found");
+            return ServiceResultFactory.Fail("Role not found", 400);
 
         var utc = DateTime.UtcNow;
 
@@ -82,35 +83,35 @@ internal class AuthService(
         var user = await userRepository.GetUserAsync(loginDto.Username);
         if (user == null)
         {
-            return ServiceResultFactory<JwtToken>.Fail("Credentials error");
+            return ServiceResultFactory<JwtToken>.Fail("Credentials error", 401);
         }
 
         if (user.Active == false)
         {
-            return ServiceResultFactory<JwtToken>.Fail("User is not active");
+            return ServiceResultFactory<JwtToken>.Fail("User is not active", 401);
         }
 
         if (!DataHasher.ControlHash(loginDto.Password, user.PasswordHash, user.PasswordSalt))
         {
-            return ServiceResultFactory<JwtToken>.Fail("Credentials error");
+            return ServiceResultFactory<JwtToken>.Fail("Credentials error", 401);
         }
 
         var app = await appsRepository.GetAppAsync(apiKey);
         if (app == null)
         {
-            return ServiceResultFactory<JwtToken>.Fail("client not found");
+            return ServiceResultFactory<JwtToken>.Fail("client not found", 401);
         }
 
         var userRole = user.UserRoles.FirstOrDefault(ur => ur.AppId == app.Id);
         if (userRole == null)
         {
-            return ServiceResultFactory<JwtToken>.Fail("client not found");
+            return ServiceResultFactory<JwtToken>.Fail("client not found", 401);
         }
 
         var secret = await secretManager.GetSecretAsync(app.Id, SecretTypes.AppKey);
         if (secret == null)
         {
-            return ServiceResultFactory<JwtToken>.Fail("client not found");
+            return ServiceResultFactory<JwtToken>.Fail("client not found", 401);
         }
 
         var (accessToken, refreshToken) =
@@ -133,19 +134,19 @@ internal class AuthService(
     {
         if (string.IsNullOrEmpty(refreshToken))
         {
-            return ServiceResultFactory<JwtToken>.Fail("Invalid token");
+            return ServiceResultFactory<JwtToken>.Fail("Invalid token", 401);
         }
 
         var app = await appsRepository.GetAppAsync(apiKey);
         if (app is null)
         {
-            return ServiceResultFactory<JwtToken>.Fail("Invalid client");
+            return ServiceResultFactory<JwtToken>.Fail("Invalid client", 401);
         }
 
         var secret = await secretManager.GetSecretAsync(app.Id, SecretTypes.AppKey);
         if (secret is null)
         {
-            return ServiceResultFactory<JwtToken>.Fail("Invalid client");
+            return ServiceResultFactory<JwtToken>.Fail("Invalid client", 401);
         }
 
         var key = DataHasher.Decrypt(secret.Value, Encoding.UTF8.GetBytes(securityProvider.GetSecretHashingSalt())).Split(":");
@@ -160,13 +161,13 @@ internal class AuthService(
         var username = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
         if (string.IsNullOrEmpty(username))
         {
-            return ServiceResultFactory<JwtToken>.Fail("Invalid token");
+            return ServiceResultFactory<JwtToken>.Fail("Invalid token", 401);
         }
 
         var user = await userRepository.GetUserAsync(username);
         if (user is null)
         {
-            return ServiceResultFactory<JwtToken>.Fail("Invalid token");
+            return ServiceResultFactory<JwtToken>.Fail("Invalid token", 401);
         }
 
         var token = await tokenManager.GetLastTokenAsync(user.Id,
@@ -174,18 +175,18 @@ internal class AuthService(
             TokenTypeList.RefreshToken);
         if (token is null)
         {
-            return ServiceResultFactory<JwtToken>.Fail("Invalid token");
+            return ServiceResultFactory<JwtToken>.Fail("Invalid token", 401);
         }
 
         if (token.Value != refreshToken)
         {
-            return ServiceResultFactory<JwtToken>.Fail("Invalid token");
+            return ServiceResultFactory<JwtToken>.Fail("Invalid token", 401);
         }
 
         var userRole = user.UserRoles.FirstOrDefault(ur => ur.AppId == app.Id);
         if (userRole is null)
         {
-            return ServiceResultFactory<JwtToken>.Fail("Invalid client");
+            return ServiceResultFactory<JwtToken>.Fail("Invalid client", 401);
         }
         var (accessToken, newRefreshToken) = await ProduceJwtToken(user, userRole, key[1], key[0]);
 
@@ -203,19 +204,19 @@ internal class AuthService(
     {
         if (string.IsNullOrEmpty(refreshToken))
         {
-            return ServiceResultFactory.Fail("Invalid token");
+            return ServiceResultFactory.Fail("Invalid token", 401);
         }
 
         var app = await appsRepository.GetAppAsync(apiKey);
         if (app is null)
         {
-            return ServiceResultFactory<JwtToken>.Fail("Invalid client");
+            return ServiceResultFactory<JwtToken>.Fail("Invalid client", 401);
         }
 
         var secret = await secretManager.GetSecretAsync(app.Id, SecretTypes.AppKey);
         if (secret is null)
         {
-            return ServiceResultFactory<JwtToken>.Fail("Invalid client");
+            return ServiceResultFactory<JwtToken>.Fail("Invalid client", 401);
         }
 
         var key = DataHasher.Decrypt(
@@ -228,13 +229,13 @@ internal class AuthService(
         var username = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
         if (string.IsNullOrEmpty(username))
         {
-            return ServiceResultFactory.Fail("Invalid token");
+            return ServiceResultFactory.Fail("Invalid token", 401);
         }
 
         var user = await userRepository.GetUserAsync(username);
         if (user is null)
         {
-            return ServiceResultFactory.Fail("Invalid token");
+            return ServiceResultFactory.Fail("Invalid token", 401);
         }
 
         var token = await tokenManager.GetLastTokenAsync(user.Id,
@@ -242,12 +243,12 @@ internal class AuthService(
             TokenTypeList.RefreshToken);
         if (token is null)
         {
-            return ServiceResultFactory.Fail("Invalid token");
+            return ServiceResultFactory.Fail("Invalid token", 401);
         }
 
         if (token.Value != refreshToken)
         {
-            return ServiceResultFactory.Fail("Invalid token");
+            return ServiceResultFactory.Fail("Invalid token", 401);
         }
 
         await tokenManager.RevokeTokenAsync(token);

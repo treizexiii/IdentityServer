@@ -9,9 +9,56 @@ using Identity.Wrappers.Dto;
 
 namespace Identity.Services.Admin;
 
-internal class AdminService(IAppsRepository appsRepository, ISecretManager secretManager, ISecurityProvider securityProvider) : IAdminService
+internal class AdminService(
+    IAppsRepository appsRepository,
+    ISecretManager secretManager,
+    ISecurityProvider securityProvider) : IAdminService
 {
     private const string Algorithm = Core.Tools.Algorithm.HmacSha256;
+
+    public async Task<ServiceResult<IEnumerable<AppViewDto>>> GetAppsAsync(Guid ownerId)
+    {
+        try
+        {
+            var apps = await appsRepository.GetAppsAsync(ownerId);
+            var list = new List<AppViewDto>();
+            foreach (var app in apps)
+            {
+                var dto = new AppDtoBuilder(app).Build();
+                list.Add(dto);
+            }
+
+            return ServiceResultFactory<IEnumerable<AppViewDto>>.Ok(list);
+        }
+        catch (Exception e)
+        {
+            return ServiceResultFactory<IEnumerable<AppViewDto>>.Fail(e.Message, 400, null);
+        }
+    }
+
+    public async Task<ServiceResult<AppViewDto>> GetAppAsync(Guid owner, Guid appId)
+    {
+        try
+        {
+            var app = await appsRepository.GetAppAsync(appId);
+            if (app is null)
+            {
+                return ServiceResultFactory<AppViewDto>.NotFound();
+            }
+
+            if (app.Owner != owner)
+            {
+                return ServiceResultFactory<AppViewDto>.Forbid();
+            }
+
+            var dto = new AppDtoBuilder(app).Build();
+            return ServiceResultFactory<AppViewDto>.Ok(dto);
+        }
+        catch (Exception e)
+        {
+            return ServiceResultFactory<AppViewDto>.Fail(e.Message, 400, null);
+        }
+    }
 
     public async Task<ServiceResult<AppDto>> CreateAppAsync(RegisterAppDto registerAppDto)
     {
@@ -31,7 +78,7 @@ internal class AdminService(IAppsRepository appsRepository, ISecretManager secre
                 ApiKey = Guid.NewGuid().ToString(),
                 Name = registerAppDto.AppName,
                 NormalizedName = normalizeName,
-                Description = registerAppDto.Description,
+                Description = registerAppDto.Description ?? string.Empty,
                 CreatedAt = utc
             };
 
@@ -47,7 +94,39 @@ internal class AdminService(IAppsRepository appsRepository, ISecretManager secre
         }
         catch (Exception e)
         {
-            return ServiceResultFactory<AppDto>.Fail(e.Message, null);
+            return ServiceResultFactory<AppDto>.Fail(e.Message, 400, null);
+        }
+    }
+
+    public async Task<ServiceResult> UpdateAppAsync(Guid owner, Guid appId, AppConfigDto configuration)
+    {
+        try
+        {
+            var app = await appsRepository.GetAppAsync(appId);
+            if (app is null)
+            {
+                return ServiceResultFactory<AppDto>.NotFound();
+            }
+            if (app.Owner != owner)
+            {
+                return ServiceResultFactory<AppDto>.Forbid();
+            }
+
+            var utc = DateTime.UtcNow;
+
+            app.Configuration.TokenExpiration = configuration.TokenExpiration;
+            app.Configuration.RefreshTokenExpiration = configuration.RefreshTokenExpiration;
+            app.Configuration.Issuer = configuration.Issuer;
+            app.Configuration.Audience = configuration.Audience;
+            app.Configuration.UpdatedAt = utc;
+
+            await appsRepository.UpdateAppAsync(app);
+
+            return ServiceResultFactory.Ok();
+        }
+        catch (Exception e)
+        {
+            return ServiceResultFactory<AppDto>.Fail(e.Message, 400, null);
         }
     }
 }

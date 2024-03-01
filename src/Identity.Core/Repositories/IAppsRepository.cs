@@ -4,9 +4,11 @@ namespace Identity.Core.Repositories;
 
 public interface IAppsRepository
 {
-    Task AddAppAsync(App app);
+    Task<IEnumerable<App>> GetAppsAsync();
+    Task<IEnumerable<App>> GetAppsAsync(Guid ownerId);
     Task<App?> GetAppAsync(Guid id);
     Task<App?> GetAppAsync(string apiKey);
-    Task<bool> IsExistAsync(string name);
+    Task AddAppAsync(App app);
     Task UpdateAppAsync(App app);
+    Task<bool> IsExistAsync(string name);
 }
