@@ -8,6 +8,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["src/Identity.Server/Identity.Server.csproj", "src/Identity.Server/"]
+COPY ["src/Identity.Persistence/Identity.Persistence.csproj", "src/Identity.Persistence/"]
+COPY ["src/Identity.Core/Identity.Core.csproj", "src/Identity.Core/"]
+COPY ["src/Tools/Tools.TransactionsManager/Tools.TransactionsManager.csproj", "src/Tools/Tools.TransactionsManager/"]
+COPY ["src/Identity.Services/Identity.Services.csproj", "src/Identity.Services/"]
+COPY ["src/Identity.Wrappers/Identity.Wrappers.csproj", "src/Identity.Wrappers/"]
 RUN dotnet restore "src/Identity.Server/Identity.Server.csproj"
 COPY . .
 WORKDIR "/src/src/Identity.Server"

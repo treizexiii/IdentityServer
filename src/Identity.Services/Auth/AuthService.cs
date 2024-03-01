@@ -66,6 +66,12 @@ internal class AuthService(
             AppId = app.Id
         });
 
+        if (role.Name == RolesList.Admin)
+        {
+            app.Owner = user.Id;
+            await appsRepository.UpdateAppAsync(app);
+        }
+
         await userRepository.AddUserAsync(user);
 
         return ServiceResultFactory.Ok();

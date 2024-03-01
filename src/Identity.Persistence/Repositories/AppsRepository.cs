@@ -32,4 +32,10 @@ public class AppsRepository(IdentityDb context) : IAppsRepository
     {
         return await context.Apps.AnyAsync(a => a.NormalizedName == name);
     }
+
+    public Task UpdateAppAsync(App app)
+    {
+        context.Apps.Update(app);
+        return Task.CompletedTask;
+    }
 }

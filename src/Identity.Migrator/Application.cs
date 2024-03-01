@@ -11,7 +11,7 @@ namespace Identity.Migrator;
 
 public class Application(IHost host)
 {
-    public async Task RunAsync()
+    public async Task RunAsync(string[] args)
     {
         var logger = host.Services.GetRequiredService<ILogger<Application>>();
 
@@ -27,7 +27,23 @@ public class Application(IHost host)
             do
             {
                 Console.Write("Enter your choice: ");
-            } while (!int.TryParse(Console.ReadLine(), out choice) || choice < 0 || choice > 3);
+
+                if (args.Length > 0)
+                {
+                    choice = int.TryParse(args[0], out choice) ? choice : -1;
+                    args = ["0"];
+                }
+                else
+                {
+                    var key = Console.ReadLine();
+                    choice = int.TryParse(key, out choice) ? choice : -1;
+                }
+
+                if (choice is < 0 or > 3)
+                {
+                    Console.WriteLine("Invalid command");
+                }
+            } while (choice is < 0 or > 3);
 
             switch (choice)
             {

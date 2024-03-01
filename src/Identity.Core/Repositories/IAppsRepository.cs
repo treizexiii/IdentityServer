@@ -8,4 +8,5 @@ public interface IAppsRepository
     Task<App?> GetAppAsync(Guid id);
     Task<App?> GetAppAsync(string apiKey);
     Task<bool> IsExistAsync(string name);
+    Task UpdateAppAsync(App app);
 }

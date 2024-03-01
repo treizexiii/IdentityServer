@@ -1,17 +1,11 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using Identity.Core;
-using Identity.Core.Entities;
 using Identity.Persistence;
 using Identity.Persistence.Database;
 using Identity.Services;
-using Identity.Services.Admin;
-using Identity.Services.Auth;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Tools.TransactionsManager;
 
 namespace Identity.Migrator;
@@ -29,7 +23,7 @@ internal class Program
 
         Console.WriteLine("Starting migrator...");
         var app = new Application(host);
-        await app.RunAsync();
+        await app.RunAsync(args);
     }
 
     private static IHost BuildHost(string[] args)
@@ -50,7 +44,6 @@ internal class Program
                     hostContext.Configuration["DB_NAME"],
                     hostContext.Configuration["DB_USER"],
                     hostContext.Configuration["DB_PASSWORD"]);
-                Console.WriteLine(connectionString);
                 services.AddPersistence(connectionString);
                 services.AddTransactionManager<IdentityDb>();
                 services.AddIdentityDomain();
