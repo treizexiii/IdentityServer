@@ -47,7 +47,7 @@ public abstract class IdentityControllerBase(
         var response = new ApiResponse
         {
             Version = "1.0",
-            Code = 200,2aQ23WA457ETYS6
+            Code = 200,
             Success = true,
             Message = message
         };
