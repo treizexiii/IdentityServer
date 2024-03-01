@@ -25,4 +25,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-ENTRYPOINT ["./Identity.Migrator", "1"]
+#ENTRYPOINT ["./Identity.Migrator", "1"]
