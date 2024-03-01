@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Identity.Core.Entities;
 using Identity.Services.Admin;
 using Identity.Services.Auth;
@@ -13,19 +14,21 @@ public class SuperAdminBuilder(
     IAdminService adminService,
     IAuthService authService)
 {
-    private static readonly RegisterAppDto Register = new(
-        "superadmin@root.fr",
-        "Superadmin123!",
-        "root",
-        "Root access application");
-
     public async Task Create()
     {
         try
         {
+            // load data from json
+            var json = File.ReadAllText("datas/su.json");
+            var data = JsonSerializer.Deserialize<RegisterAppDto>(json);
+            if (data == null)
+            {
+                throw new Exception("Super admin data not found");
+            }
+
             await transactionManager.BeginTransactionAsync(Guid.Empty);
             logger.LogInformation("Create root app");
-            var result = await adminService.CreateAppAsync(Register);
+            var result = await adminService.CreateAppAsync(data);
             if (!result.Success)
             {
                 throw new Exception("Super admin app creation failed");
@@ -38,7 +41,7 @@ public class SuperAdminBuilder(
             logger.LogInformation("Secret: {DataSecret}", result.Data.Secret);
 
             logger.LogInformation("Create super admin");
-            var su = await authService.RegisterAsync(Register.ToRegisterRequest(result.Data.ApiKey), RolesList.SuperAdmin);
+            var su = await authService.RegisterAsync(data.ToRegisterRequest(result.Data.ApiKey), RolesList.SuperAdmin);
             if (!su.Success)
             {
                 throw new Exception("Super admin creation failed");

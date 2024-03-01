@@ -9,16 +9,23 @@ using Tools.TransactionsManager;
 
 namespace Identity.Migrator;
 
-public class Application(IHost host)
+public class Application
 {
+    private readonly ILogger<Application> _logger;
+    private readonly IHost _host;
+
+    public Application(IHost host)
+    {
+        _host = host;
+        _logger = _host.Services.GetRequiredService<ILogger<Application>>();
+    }
+
     public async Task RunAsync(string[] args)
     {
-        var logger = host.Services.GetRequiredService<ILogger<Application>>();
-
-        logger.LogInformation("Environment: {Env}", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
-        logger.LogInformation("Databases host: {Host}", Environment.GetEnvironmentVariable("DB_HOST"));
-        logger.LogInformation("Databases port: {Port}", Environment.GetEnvironmentVariable("DB_PORT"));
-        logger.LogInformation("Databases name: {Name}", Environment.GetEnvironmentVariable("DB_NAME"));
+        _logger.LogInformation("Environment: {Env}", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+        _logger.LogInformation("Databases host: {Host}", Environment.GetEnvironmentVariable("DB_HOST"));
+        _logger.LogInformation("Databases port: {Port}", Environment.GetEnvironmentVariable("DB_PORT"));
+        _logger.LogInformation("Databases name: {Name}", Environment.GetEnvironmentVariable("DB_NAME"));
 
         while (true)
         {
@@ -26,7 +33,7 @@ public class Application(IHost host)
             int choice;
             do
             {
-                Console.Write("Enter your choice: ");
+                Console.Write("Enter your choice: \n");
 
                 if (args.Length > 0)
                 {
@@ -41,7 +48,7 @@ public class Application(IHost host)
 
                 if (choice is < 0 or > 3)
                 {
-                    Console.WriteLine("Invalid command");
+                    _logger.LogInformation("Invalid command");
                 }
             } while (choice is < 0 or > 3);
 
@@ -77,20 +84,20 @@ public class Application(IHost host)
     {
         try
         {
-            var context = host.Services.GetRequiredService<IdentityDb>();
+            var context = _host.Services.GetRequiredService<IdentityDb>();
             if (context.Database.GetPendingMigrations().Any())
             {
                 context.Database.Migrate();
-                Console.WriteLine("Migrations applied");
+                _logger.LogInformation("Migrations applied");
             }
             else
             {
-                Console.WriteLine("No pending migrations");
+                _logger.LogInformation("No pending migrations");
             }
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            _logger.LogInformation("{EMessage}", e.Message);
         }
     }
 
@@ -98,13 +105,13 @@ public class Application(IHost host)
     {
         try
         {
-            var context = host.Services.GetRequiredService<IdentityDb>();
+            var context = _host.Services.GetRequiredService<IdentityDb>();
             context.Database.EnsureCreated();
-            Console.WriteLine("Database created");
+            _logger.LogInformation("Database created");
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            _logger.LogInformation("{EMessage}", e.Message);
         }
     }
 
@@ -112,7 +119,7 @@ public class Application(IHost host)
     {
         try
         {
-            var provider = host.Services.CreateScope().ServiceProvider;
+            var provider = _host.Services.CreateScope().ServiceProvider;
             var transactionManager = provider.GetRequiredService<ITransactionManager>();
             var logger = provider.GetRequiredService<ILogger<SuperAdminBuilder>>();
             var adminService = provider.GetRequiredService<IAdminService>();
@@ -120,11 +127,11 @@ public class Application(IHost host)
             var builder = new SuperAdminBuilder(transactionManager, logger, adminService, authService);
             await builder.Create();
 
-            Console.WriteLine("Database seeded");
+            _logger.LogInformation("Database seeded");
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            _logger.LogInformation("{EMessage}", e.Message);
         }
     }
 }

@@ -1,3 +1,6 @@
 {
-
+  "Email": "superadmin@root.fr",
+  "Password": "Superadmin123!",
+  "AppName": "root",
+  "Description": "Root access application"
 }
