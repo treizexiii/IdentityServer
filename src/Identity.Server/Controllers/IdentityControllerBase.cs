@@ -76,7 +76,7 @@ public abstract class IdentityControllerBase(
             Version = "1.0",
             Code = result.StatusCode,
             Success = false,
-            Message = "Bad request",
+            Message = result.Message,
             Errors = result.Errors?.ToArray() ?? Array.Empty<string>()
         };
 
@@ -96,6 +96,10 @@ public abstract class IdentityControllerBase(
         string message;
         switch (exceptionType)
         {
+            case "UnauthorizedAccessException":
+                code = 401;
+                message = e.Message;
+                break;
             case "DataException":
             case "ArgumentException":
                 code = 400;

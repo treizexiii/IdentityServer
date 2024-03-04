@@ -84,7 +84,7 @@ public static class SwaggerProvider
             }
         }
 
-        public void Configure(string name, SwaggerGenOptions options)
+        public void Configure(string? name, SwaggerGenOptions options)
         {
             Configure(options);
         }

@@ -7,4 +7,7 @@ public interface IRolesRepository
     Task<IEnumerable<Role>> GetRolesAsync();
     Task<Role?> GetRoleAsync(Guid id);
     Task<Role?> GetRoleAsync(string name);
+    Task<IEnumerable<Role>> GetRolesAsync(Guid appId);
+    Task<int> DeleteRoleAsync(Guid id);
+    Task AddRoleAsync(Role newRole);
 }

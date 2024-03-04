@@ -12,4 +12,5 @@ public interface IAppsRepository
     Task UpdateAppAsync(App app);
     Task<bool> IsExistAsync(string name);
     Task<IEnumerable<User>> GetAppUsersAsync(Guid id, string role);
+
 }

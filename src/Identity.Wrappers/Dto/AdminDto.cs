@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices.JavaScript;
-
 namespace Identity.Wrappers.Dto;
 
 public record AppConfigDto(
@@ -34,4 +32,9 @@ public record AppRoleDto(
     string Name,
     string Description,
     DateTime CreatedAt,
-    bool CouldBeDeleted);
+    bool CouldBeDeleted,
+    Guid AppId);
+
+public record AppRoleCreateDto(
+    string Name,
+    string Description);
