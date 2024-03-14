@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Identity.Core.Entities;
 using Identity.Services.Auth;
 using Identity.Wrappers.Dto;
@@ -7,7 +8,8 @@ using Tools.TransactionsManager;
 namespace Identity.Server.Controllers._1._0;
 
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json")]
 public class AuthController(
     ILogger<AuthController> logger,
@@ -18,6 +20,7 @@ public class AuthController(
 {
     [HttpPost]
     [Route("register")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> RegisterAsync(RegisterDto registerDto)
     {
         var guid = Guid.NewGuid();
@@ -45,6 +48,7 @@ public class AuthController(
 
     [HttpPost]
     [Route("login")]
+    [ProducesResponseType(typeof(JwtToken), StatusCodes.Status200OK)]
     public async Task<IActionResult> LoginAsync(LoginDto loginDto)
     {
         var guid = Guid.NewGuid();
@@ -74,6 +78,7 @@ public class AuthController(
 
     [HttpPost]
     [Route("refresh")]
+    [ProducesResponseType(typeof(JwtToken), StatusCodes.Status200OK)]
     public async Task<IActionResult> RefreshTokenAsync()
     {
         try
@@ -104,6 +109,7 @@ public class AuthController(
 
     [HttpPost]
     [Route("logout")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> LogoutAsync()
     {
         try

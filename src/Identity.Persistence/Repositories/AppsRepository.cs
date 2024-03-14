@@ -12,9 +12,27 @@ public class AppsRepository(IdentityDb context) : IAppsRepository
         await context.Apps.AddAsync(app);
     }
 
+    public async Task<IEnumerable<App>> GetAppsAsync()
+    {
+        return await context.Apps
+            .Include(a => a.Configuration)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<App>> GetAppsAsync(Guid ownerId)
+    {
+        return await context.Apps
+            .Where(a => a.Owner == ownerId)
+            .Include(a => a.Configuration)
+            .ToListAsync();
+    }
+
     public async Task<App?> GetAppAsync(Guid id)
     {
-        return await context.Apps.Where(a => a.Id == id).FirstOrDefaultAsync();
+        return await context.Apps
+            .Where(a => a.Id == id)
+            .Include(a => a.Configuration)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<App?> GetAppAsync(string apiKey)
@@ -25,12 +43,32 @@ public class AppsRepository(IdentityDb context) : IAppsRepository
         {
             return app;
         }
-        return await context.Apps.Where(a => a.ApiKey == apiKey).FirstOrDefaultAsync();
+        return await context.Apps
+            .Where(a => a.ApiKey == apiKey)
+            .Include(a => a.Configuration)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<bool> IsExistAsync(string name)
     {
         return await context.Apps.AnyAsync(a => a.NormalizedName == name);
+    }
+
+    public async Task<IEnumerable<User>> GetAppUsersAsync(Guid id, string role)
+    {
+        if (role is RolesList.All)
+        {
+            return await context.Users
+                .Include(u => u.UserRoles
+                    .Where(ur => ur.AppId == id))
+                .Where(u => u.UserRoles.Any(ur => ur.AppId == id))
+                .ToListAsync();
+        }
+        return await context.Users
+            .Include(u => u.UserRoles
+                .Where(ur => ur.AppId == id && ur.Role.Name == role))
+            .Where(u => u.UserRoles.Any(ur => ur.AppId == id))
+            .ToListAsync();
     }
 
     public Task UpdateAppAsync(App app)

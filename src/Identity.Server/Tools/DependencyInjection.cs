@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -23,6 +24,22 @@ public static class DependencyInjection
         }).AddJwtBearer(options => { options.TokenValidationParameters = tokenValidationParameters; });
 
         services.AddAuthorization();
+
+        return services;
+    }
+
+    public static IServiceCollection AddApiVersioning(this IServiceCollection services, ApiVersion[] versions)
+    {
+        services.AddApiVersioning(opt =>
+        {
+            opt.AssumeDefaultVersionWhenUnspecified = true;
+            opt.DefaultApiVersion = new ApiVersion(1, 0);
+            opt.ReportApiVersions = true;
+        }).AddApiExplorer(options =>
+        {
+            options.GroupNameFormat = "'v'VVV";
+            options.SubstituteApiVersionInUrl = true;
+        });
 
         return services;
     }

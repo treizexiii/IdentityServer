@@ -59,6 +59,7 @@ public class IdentityDb : DbContext, IDbContext
         {
             b.HasIndex(a => a.ApiKey).IsUnique();
             b.HasIndex(a => a.NormalizedName).IsUnique();
+            b.HasIndex(a => a.Owner);
         });
 
         builder.Entity<Secret>(b =>
